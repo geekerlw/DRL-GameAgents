@@ -15,27 +15,70 @@ class RBRGame:
     def __init__(self):
         self.base_address = pm.base_address
 
-    def get_gamemode(self):
+    def gamemode(self):
         return pm.read_int(get_pointer_address(self.base_address + 0x3EAC48, [0x728]))
 
+    def loadmode(self):
+        return pm.read_int(get_pointer_address(self.base_address + 0x3EA678, [0x70, 0x10]))
+
+    def startcount(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x244]))
+
+    def is_stage_loaded(self):
+        return self.gamemode() == 0x0A and self.loadmode() == 0x08 and self.startcount() <= float(7.0)
+
     def is_stage_start(self):
-        return 1 == pm.read_int(get_pointer_address(self.base_address + 0x125FC68, [0x08]))
+        return self.gamemode() == 0x01 and self.startcount() < float(0.0)
 
     def is_stage_finish(self):
-        pass
+        return self.gamemode() == 0x09 or self.gamemode() == 0x0C
 
-    def get_car_speed(self):
-        pass
+    def car_speed(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x0C]))
+    
+    def car_rpm(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x10]))
 
-    def get_drive_distance(self):
-        return 5
+    def car_temp(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x14]))
 
-    def get_car_direction(self):
-        pass
+    def car_turbo(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x18]))
 
-if __name__ == '__main__':
-    print(1)
-    game = RBRGame()
-    print(game.get_drive_distance())
-    print(game.get_gamemode())
-    print('game start' + game.is_stage_start())
+    def drive_distance(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x20]))
+    
+    def left_distance(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x28]))
+
+    def race_time(self):
+        return pm.read_float(get_pointer_address(self.base_address + 0x125FC68, [0x140]))
+    
+    def race_wrongway(self):
+        return 1 == pm.read_int(get_pointer_address(self.base_address + 0x125FC68, [0x150]))
+    
+    def car_look(self):
+        x = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x100]))
+        y = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x104]))
+        z = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x108]))
+        w = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x10C]))
+        return [x, y, z, w]
+
+    def car_pos(self):
+        x = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x140]))
+        y = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x144]))
+        z = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x148]))
+        w = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x14C]))
+        return [x, y, z, w]
+
+    def car_spin(self):
+        x = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x190]))
+        y = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x194]))
+        z = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x198]))
+        return [x, y, z]
+
+    def car_acc(self):
+        x = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x1C0]))
+        y = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x1C4]))
+        z = pm.read_float(get_pointer_address(self.base_address + 0x4EF660, [0x1C8]))
+        return [x, y, z]

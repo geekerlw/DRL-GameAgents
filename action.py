@@ -1,52 +1,69 @@
-import pyautogui
-
-def none():
-    pass
-
-def left():
-    pyautogui.keyDown('a')
-
-def release_left():
-    pyautogui.keyUp('a')
-
-def right():
-    pyautogui.keyDown('d')
-
-def release_right():
-    pyautogui.keyUp('d')
-
-def throttle():
-    pyautogui.keyDown('w')
-
-def release_throttle():
-    pyautogui.keyUp('w')
-
-def brake():
-    pyautogui.keyDown('s')
-
-def release_brake():
-    pyautogui.keyUp('s')
-
-def handbrake():
-    pyautogui.keyDown('space')
-
-def release_handbrake():
-    pyautogui.keyUp('space')
-
-def upgear():
-    pyautogui.press('u')
-
-def downgear():
-    pyautogui.press('d')
+import time
+import vgamepad as vg
+import numpy as np
 
 class Action:
     def __init__(self):
-        self._actions = [none, left, release_left, right, release_right, 
-                        throttle, release_throttle, brake, release_brake, 
-                        handbrake, release_handbrake, upgear, downgear]
+        self.gamepad = vg.VX360Gamepad()
     
     def dimentions(self):
-        return self._actions.count()
+        return 6
 
-    def take(self, index):
-        self._actions[index]()
+    def take(self, vec):
+        self.steer(vec[0])
+        self.throttle(vec[1])
+        self.brake(vec[2])
+        self.handbrake(vec[3])
+        self.upgear(vec[4])
+        self.downgear(vec[5])
+
+    def steer(self, value): # values between -32768 and 32767
+        self.gamepad.left_joystick(x_value=value, y_value=0)
+        self.gamepad.update()
+
+    def throttle(self, v): # value between 0 and 255
+        self.gamepad.right_trigger(value=v)
+        self.gamepad.update()
+
+    def brake(self, v): # value between 0 and 255
+        self.gamepad.left_trigger(value=v)
+        self.gamepad.update()
+
+    def handbrake(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+        self.gamepad.update()
+        time.sleep(0.2)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+        self.gamepad.update()
+    
+    def upgear(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+        self.gamepad.update()
+        time.sleep(0.1)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+        self.gamepad.update()
+
+    def downgear(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        self.gamepad.update()
+        time.sleep(0.1)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+        self.gamepad.update()
+
+    def retire(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
+        self.gamepad.update()
+        time.sleep(0.1)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
+        self.gamepad.update()
+
+    def restart(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
+        self.gamepad.update()
+        time.sleep(0.1)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
+        self.gamepad.update()
+
+    def reset(self):
+        self.gamepad.reset()
+        self.gamepad.update()
