@@ -9,16 +9,17 @@ class Action:
     def dimentions(self):
         return 6
 
-    def take(self, vec):
-        self.steer(vec[0])
-        self.throttle(vec[1])
-        self.brake(vec[2])
-        self.handbrake(vec[3])
-        self.upgear(vec[4])
-        self.downgear(vec[5])
+    # actions nees to be inside [-1, 1], expand by yourself.
+    def execute(self, actions):
+        self.steer(actions[0])
+        self.throttle(actions[1])
+        self.brake(actions[2])
+        self.handbrake(actions[3])
+        self.upgear(actions[4])
+        self.downgear(actions[5])
 
-    def steer(self, value): # values between -32768 and 32767
-        self.gamepad.left_joystick(x_value=value, y_value=0)
+    def steer(self, v): # values between -32768 and 32767
+        self.gamepad.left_joystick(x_value=v, y_value=0)
         self.gamepad.update()
 
     def throttle(self, v): # value between 0 and 255
@@ -29,40 +30,30 @@ class Action:
         self.gamepad.left_trigger(value=v)
         self.gamepad.update()
 
-    def handbrake(self):
-        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
-        self.gamepad.update()
-        time.sleep(0.2)
-        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
-        self.gamepad.update()
+    def handbrake(self, v=True):
+        if v :
+            self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+            self.gamepad.update()
+            time.sleep(0.2)
+            self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
+            self.gamepad.update()
+        
     
-    def upgear(self):
-        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
-        self.gamepad.update()
-        time.sleep(0.1)
-        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
-        self.gamepad.update()
+    def upgear(self, v=True):
+        if v:
+            self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+            self.gamepad.update()
+            time.sleep(0.1)
+            self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
+            self.gamepad.update()
 
-    def downgear(self):
-        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-        self.gamepad.update()
-        time.sleep(0.1)
-        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
-        self.gamepad.update()
-
-    def retire(self):
-        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
-        self.gamepad.update()
-        time.sleep(0.1)
-        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
-        self.gamepad.update()
-
-    def restart(self):
-        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-        self.gamepad.update()
-        time.sleep(0.1)
-        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
-        self.gamepad.update()
+    def downgear(self, v=True):
+        if v:
+            self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+            self.gamepad.update()
+            time.sleep(0.1)
+            self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
+            self.gamepad.update()
 
     def reset(self):
         self.gamepad.reset()

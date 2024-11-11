@@ -1,8 +1,6 @@
-from game import RBRGame
-
-class Observation:
-    def __init__(self):
-        self.game = RBRGame()
+class Numeric:
+    def __init__(self, game):
+        self.game = game
 
     def dementions(self):
         state = self.take()
@@ -28,11 +26,6 @@ class Observation:
 
     def racestate(self) -> list[float]:
         state = []
+        state.append(self.game.startcount())
         state.append(self.game.drive_distance())
         return state
-    
-if __name__ == '__main__':
-    print("test observation")
-    observation = Observation()
-    print(observation.dementions())
-    print(observation.take())
