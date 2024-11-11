@@ -1,18 +1,17 @@
 import gymnasium as gym
-
 from stable_baselines3 import PPO
+from env import RBREnv
+import time
 
-env = gym.make("CartPole-v1", render_mode="rgb_array")
+def train():
+    env = RBREnv()
+    print("start training after 30s, start game please.")
+    time.sleep(30)
+    env.prepare()
 
-model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=10_000)
+    model = PPO("MlpPolicy", env, verbose=1)
+    model.learn(total_timesteps=10)
+    print("finish training!!!")
 
-vec_env = model.get_env()
-obs = vec_env.reset()
-for i in range(1000):
-    action, _state = model.predict(obs, deterministic=True)
-    obs, reward, done, info = vec_env.step(action)
-    vec_env.render("human")
-    # VecEnv resets automatically
-    # if done:
-    #   obs = vec_env.reset()
+if __name__ == '__main__':
+    train()

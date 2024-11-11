@@ -3,8 +3,7 @@ class Numeric:
         self.game = game
 
     def dementions(self):
-        state = self.take()
-        return len(state)
+        return 20
 
     def take(self) -> list[float]:
         states = []

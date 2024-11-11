@@ -2,7 +2,7 @@ import time
 import numpy as np
 from action import Action
 
-if __name__ == '__main__':
+def main():
     action = Action()
 
     while True:
@@ -45,3 +45,6 @@ if __name__ == '__main__':
         time.sleep(20)
 
         action.reset()
+
+if __name__ == '__main__':
+    main()

@@ -1,3 +1,4 @@
+import time
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
@@ -14,7 +15,15 @@ class RBREnv(gym.Env):
         self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.numeric.dementions(),), dtype=np.float32)
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action.dimentions(),), dtype=np.float32)
 
-    def reset(self):
+    def prepare(self):
+        self.game.attach()
+        while True:
+            if self.game.is_stage_started():
+                break;
+            print("stage is not started, waiting...")
+            time.sleep(1)
+
+    def reset(self, seed=None):
         return self.numeric.take(), {}
 
     def step(self, action):
