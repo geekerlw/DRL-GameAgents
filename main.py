@@ -6,7 +6,7 @@ def evaluate():
     env = RBREnv(shakedown=False)
     model = PPO.load("model/ppo-rbragent", env=env)
     mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
-    print("final evaluate result: {mean_reward}, {std_reward}")
+    print(f"final evaluate result: {mean_reward}, {std_reward}")
 
 if __name__ == '__main__':
     evaluate()

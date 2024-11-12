@@ -19,15 +19,15 @@ class Action:
         self.downgear(actions[5] > 0)
 
     def steer(self, weight): # weight is float between -1.0 and 1.0
-        self.gamepad.left_joystick_float(x_value=weight, y_value=0)
+        self.gamepad.left_joystick_float(x_value_float=weight, y_value_float=0)
         self.gamepad.update()
 
     def throttle(self, weight): # weight is float between 0.0 and 1.0
-        self.gamepad.right_trigger_float(value=weight)
+        self.gamepad.right_trigger_float(value_float=weight)
         self.gamepad.update()
 
     def brake(self, weight): # weight is float between 0.0 and 1.0
-        self.gamepad.left_trigger_float(value=weight)
+        self.gamepad.left_trigger_float(value_float=weight)
         self.gamepad.update()
 
     def handbrake(self, press=True):

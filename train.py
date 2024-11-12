@@ -14,13 +14,21 @@ def train():
             model = PPO.load(os.path.join(MODEL_DIR, HALF_MODEL), env=env)
         else:
             model = PPO("MlpPolicy", env, verbose=1)
-        model.learn(total_timesteps=10_000, progress_bar=True)
+        model.learn(total_timesteps=10_000)
     except Exception as e:
-        print("training abort: {e}, save half trained model.")
+        print(f"training abort: {e}, save half trained model.")
         model.save(os.path.join(MODEL_DIR, HALF_MODEL))
+        return
 
     print("training finished, save final model.")
     model.save(os.path.join(MODEL_DIR, FINAL_MODEL))
 
+def train_no_save():
+    env = RBREnv(shakedown=True)
+    model = PPO("MlpPolicy", env, verbose=1)
+    model.learn(total_timesteps=10_000)
+
+
 if __name__ == '__main__':
-    train()
+    train_no_save()
+    # train()

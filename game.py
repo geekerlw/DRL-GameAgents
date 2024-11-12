@@ -1,8 +1,18 @@
+import ctypes
+import time
 import win32gui
 import win32con
 import win32api
 import pymem
 from pymem.ptypes import RemotePointer
+
+class COPYDATASTRUCT(ctypes.Structure):
+    _fields_ = [
+        ("dwData", ctypes.c_ulong),  # Custom data identifier
+        ("cbData", ctypes.c_ulong),  # Size of the data
+        ("lpData", ctypes.c_void_p)   # Pointer to the data
+    ]
+
 class RBRGame:
     def __init__(self):
         self.pm = None
@@ -18,7 +28,7 @@ class RBRGame:
             self.base_address = self.pm.base_address
             return True
         except Exception as e:
-            print("attach process error: {e}")
+            print(f"attach process error: {e}")
             return False
 
     def address(self, base, offsets):
@@ -32,17 +42,22 @@ class RBRGame:
     def sendmessage(self, message, wparam, lparam):
         hwnd = win32gui.FindWindow(None, "Richard Burns Rally - DirectX9\0")
         if hwnd:
-            win32gui.SetForegroundWindow()
+            win32gui.SetForegroundWindow(hwnd)
             win32gui.SendMessage(hwnd, message, wparam, lparam)
 
     def start(self):
         self.sendmessage(win32con.WM_KEYDOWN, win32con.VK_ESCAPE, 0)
+        time.sleep(0.1)
         self.sendmessage(win32con.WM_KEYUP, win32con.VK_ESCAPE, 0)
 
     def restart(self):
-        cds = win32gui.COPYDATASTRUCT()
+        return
+        data = ctypes.create_string_buffer(0)  # Empty buffer or actual data if needed
+        cds = COPYDATASTRUCT()
         cds.dwData = 3  # RSF Quick Restart Stage
-        self.sendmessage(win32con.WM_COPYDATA, 0xDEAF01, cds)
+        cds.cbData = ctypes.sizeof(data)  # Size of the data
+        cds.lpData = ctypes.cast(data, ctypes.c_void_p)  # Cast to void pointer
+        self.sendmessage(win32con.WM_COPYDATA, 0xDEAF01, ctypes.byref(cds))
 
     def gamemode(self):
         return self.pm.read_int(self.address(self.base_address + 0x3EAC48, [0x728]))
@@ -128,7 +143,7 @@ class RBRGame:
         self.pacenotes.clear()
         numpacenotes = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x20]))
         for i in range(numpacenotes):
-            self.pacenotes.push({
+            self.pacenotes.append({
                 'type': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, 0x24, 0xC * i + 0x00])),
                 'distance': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, 0x24, 0xC * i, 0x08]))
             })
