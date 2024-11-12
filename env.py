@@ -29,6 +29,7 @@ class RBREnv(gym.Env):
             print("stage is not loaded, select a stage to start.")
             time.sleep(2)
 
+        self.game.load_pacenotes()
         self.game.start()
         while not self.game.is_stage_started():      
             time.sleep(0.2)
@@ -42,6 +43,7 @@ class RBREnv(gym.Env):
         print("take action: " + action)
         self.action.execute(action)
         time.sleep(0.1) # need some delay to wait game state update
+        self.game.step()
         return self.numeric.take(), self.reward(), self.done(), self.truncated(), {}
     
     def done(self):

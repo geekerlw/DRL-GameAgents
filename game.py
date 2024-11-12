@@ -7,6 +7,7 @@ class RBRGame:
     def __init__(self):
         self.pm = None
         self.base_address = 0
+        self.pacenotes = []
 
     def attach(self):
         if self.pm != None:
@@ -116,3 +117,24 @@ class RBRGame:
         y = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x1C4]))
         z = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x1C8]))
         return [x, y, z]
+    
+    def pacenote(self):
+        if len(self.pacenotes):
+            pacenote = self.pacenotes[0]
+            return [float(pacenote.type), float(pacenote.distance), float(pacenote.distance - self.drive_distance())]
+        return [0.0, 0.0, 0.0]
+    
+    def load_pacenotes(self):
+        self.pacenotes.clear()
+        numpacenotes = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x20]))
+        for i in range(numpacenotes):
+            self.pacenotes.push({
+                'type': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, 0x24, 0xC * i + 0x00])),
+                'distance': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, 0x24, 0xC * i, 0x08]))
+            })
+
+    def step(self):
+        if len(self.pacenotes):
+            if self.pacenotes[0].distance < self.drive_distance():
+                del self.pacenote[0]
+            

@@ -3,12 +3,13 @@ class Numeric:
         self.game = game
 
     def dementions(self):
-        return 20
+        return 23
 
     def take(self) -> list[float]:
         states = []
         states.extend(self.carstate())
         states.extend(self.racestate())
+        assert(self.dementions() == len(states))
         return states
     
     def carstate(self) -> list[float]:
@@ -27,4 +28,5 @@ class Numeric:
         state = []
         state.append(self.game.startcount())
         state.append(self.game.drive_distance())
+        state.extend(self.game.pacenote())
         return state
