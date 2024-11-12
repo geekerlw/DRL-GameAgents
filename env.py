@@ -80,6 +80,8 @@ class RBREnv(gym.Env):
     def reward(self):
         reward = 1 # step base reward.
         reward -= (self.game.race_time() / 10.0) * 0.1
+        if self.game.car_rpm() < 1500 or self.game.car_rpm() > 6500:
+            reward -= 1
         reward += (self.game.car_speed() / 20.0) * 0.1
 
         return reward
