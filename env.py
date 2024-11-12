@@ -34,6 +34,7 @@ class RBREnv(gym.Env):
             time.sleep(0.2)
 
     def reset(self, seed=None):
+        self.action.reset()
         self.restart_game()
         return self.numeric.take(), {}
 
