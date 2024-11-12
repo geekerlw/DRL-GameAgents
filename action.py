@@ -9,54 +9,45 @@ class Action:
     def dimentions(self):
         return 6
 
-    # actions nees to be inside [-1, 1], expand by yourself.
+    # actions will inside [-1.0, 1.0], expand by yourself.
     def execute(self, actions):
-        print(actions)
-        # self.steer(actions[0])
-        # self.throttle(actions[1])
-        # self.brake(actions[2])
-        # self.handbrake(actions[3])
-        # self.upgear(actions[4])
-        # self.downgear(actions[5])
+        self.steer(actions[0])
+        self.throttle((actions[1] + 1.0) / 2)
+        self.brake((actions[2] + 1.0) / 2)
+        self.handbrake(actions[3] > 0)
+        self.upgear(actions[4] > 0)
+        self.downgear(actions[5] > 0)
 
-        self.steer(np.random.randint(-30000, 30000))
-        self.throttle(np.random.randint(0, 255))
-        self.brake(np.random.randint(0, 255))
-        self.handbrake(False)
-        self.upgear(np.random.randint(0, 1) == 1)
-        self.downgear(np.random.randint(0, 1) == 1)
-
-    def steer(self, v): # values between -32768 and 32767
-        self.gamepad.left_joystick(x_value=v, y_value=0)
+    def steer(self, weight): # weight is float between -1.0 and 1.0
+        self.gamepad.left_joystick_float(x_value=weight, y_value=0)
         self.gamepad.update()
 
-    def throttle(self, v): # value between 0 and 255
-        self.gamepad.right_trigger(value=v)
+    def throttle(self, weight): # weight is float between 0.0 and 1.0
+        self.gamepad.right_trigger_float(value=weight)
         self.gamepad.update()
 
-    def brake(self, v): # value between 0 and 255
-        self.gamepad.left_trigger(value=v)
+    def brake(self, weight): # weight is float between 0.0 and 1.0
+        self.gamepad.left_trigger_float(value=weight)
         self.gamepad.update()
 
-    def handbrake(self, v=True):
-        if v :
+    def handbrake(self, press=True):
+        if press :
             self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
             self.gamepad.update()
             time.sleep(0.2)
             self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_B)
             self.gamepad.update()
-        
-    
-    def upgear(self, v=True):
-        if v:
+
+    def upgear(self, press=True):
+        if press:
             self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
             self.gamepad.update()
             time.sleep(0.1)
             self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_Y)
             self.gamepad.update()
 
-    def downgear(self, v=True):
-        if v:
+    def downgear(self, press=True):
+        if press:
             self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
             self.gamepad.update()
             time.sleep(0.1)

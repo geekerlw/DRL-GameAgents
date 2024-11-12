@@ -4,7 +4,7 @@ from env import RBREnv
 import time
 
 def train():
-    env = RBREnv()
+    env = RBREnv(shakedown=True)
     print("start training after 30s, start game please.")
     time.sleep(30)
     env.prepare()

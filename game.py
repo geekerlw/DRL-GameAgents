@@ -6,8 +6,16 @@ class RBRGame:
         self.base_address = 0
 
     def attach(self):
-        self.pm = pymem.Pymem("RichardBurnsRally_SSE.exe")
-        self.base_address = self.pm.base_address
+        if self.pm != None:
+            return True
+
+        try:
+            self.pm = pymem.Pymem("RichardBurnsRally_SSE.exe")
+            self.base_address = self.pm.base_address
+            return True
+        except Exception as e:
+            print("attach process error: {e}")
+            return False
 
     def address(self, base, offsets):
         remote_pointer = RemotePointer(self.pm.process_handle, base)
@@ -16,10 +24,6 @@ class RBRGame:
                 remote_pointer = RemotePointer(self.pm.process_handle, remote_pointer.value + offset)
             else:
                 return remote_pointer.value + offset
-
-    def launch(self):
-        # spawn a game.
-        pass
     
     def start(self):
         # start race, press esc to start
@@ -43,6 +47,9 @@ class RBRGame:
 
     def is_stage_started(self):
         return self.gamemode() == 0x01 and self.startcount() < float(0.0)
+
+    def oversplitone(self):
+        return 1 == self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x254]))
 
     def overfinish(self):
         return 1 == self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x2C4]))
