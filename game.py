@@ -1,3 +1,6 @@
+import win32gui
+import win32con
+import win32api
 import pymem
 from pymem.ptypes import RemotePointer
 class RBRGame:
@@ -25,13 +28,20 @@ class RBRGame:
             else:
                 return remote_pointer.value + offset
     
+    def sendmessage(self, message, wparam, lparam):
+        hwnd = win32gui.FindWindow(None, "Richard Burns Rally - DirectX9\0")
+        if hwnd:
+            win32gui.SetForegroundWindow()
+            win32gui.SendMessage(hwnd, message, wparam, lparam)
+
     def start(self):
-        # start race, press esc to start
-        pass
+        self.sendmessage(win32con.WM_KEYDOWN, win32con.VK_ESCAPE, 0)
+        self.sendmessage(win32con.WM_KEYUP, win32con.VK_ESCAPE, 0)
 
     def restart(self):
-        # restart race by onekey map
-        pass
+        cds = win32gui.COPYDATASTRUCT()
+        cds.dwData = 3  # RSF Quick Restart Stage
+        self.sendmessage(win32con.WM_COPYDATA, 0xDEAF01, cds)
 
     def gamemode(self):
         return self.pm.read_int(self.address(self.base_address + 0x3EAC48, [0x728]))
