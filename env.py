@@ -69,7 +69,7 @@ class RBREnv(gym.Env):
             print("saddly, car turn into a wrong way.")
             return True
 
-        if self.game.is_stage_started() and self.game.car_speed() <= 2:
+        if self.game.is_stage_started() and self.game.car_speed() <= 0.2:
             print("saddly, car maybe stoped.")
             return True
 
