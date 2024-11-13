@@ -40,11 +40,12 @@ class RBREnv(gym.Env):
         return self.numeric.take(), {}
 
     def step(self, action):
-        print(f"take action: {action}")
         self.action.execute(action)
         time.sleep(0.1) # need some delay to wait game state update
         self.game.step()
-        return self.numeric.take(), self.reward(), self.done(), self.truncated(), {}
+        reward = self.reward()
+        print(f"take action: {action}, got reward: {reward}")
+        return self.numeric.take(), reward, self.done(), self.truncated(), {}
     
     def done(self):
         if self.shakedown:
