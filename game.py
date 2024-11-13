@@ -80,6 +80,9 @@ class RBRGame:
     def car_rpm(self):
         return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x10]))
 
+    def car_gear(self):
+        return self.pm.read_int(self.address(self.base_address + 0x4EF660, [0x1100]))
+
     def car_temp(self):
         return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x14]))
 
@@ -126,6 +129,14 @@ class RBRGame:
         y = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x1C4]))
         z = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x1C8]))
         return [x, y, z]
+
+    def car_control(self):
+        throttle = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x85C]))
+        brake = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x860]))
+        handbrake = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x864]))
+        steer = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x868]))
+        clutch = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x86C]))
+        return [throttle, brake, handbrake, steer, clutch]
     
     def pacenote(self):
         if len(self.pacenotes):
