@@ -44,7 +44,7 @@ class RBRGame:
         hwnd = win32gui.FindWindow(None, "Richard Burns Rally - DirectX9\0")
         if hwnd:
             win32gui.SetForegroundWindow(hwnd)
-            win32gui.SendMessage(hwnd, message, wparam, lparam)    
+            win32gui.SendMessage(hwnd, message, wparam, lparam)
 
     def restart(self):
         cds = COPYDATASTRUCT()
@@ -141,7 +141,7 @@ class RBRGame:
     def pacenote(self):
         if len(self.pacenotes):
             pacenote = self.pacenotes[0]
-            return [float(pacenote.type), float(pacenote.distance - self.drive_distance())]
+            return [float(pacenote['type']), float(pacenote['distance'] - self.drive_distance())]
         return [0.0, 0.0]
     
     def load_pacenotes(self):
@@ -150,12 +150,12 @@ class RBRGame:
         addrpacenote = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x24]))
         for i in range(numpacenotes):
             self.pacenotes.append({
-                'type': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, addrpacenote + 0xC * i + 0x00])),
-                'distance': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, addrpacenote + 0xC * i, 0x08]))
+                'type': self.pm.read_int(self.address(self.base_address, [addrpacenote + 0xC * i + 0x00])),
+                'distance': self.pm.read_int(self.address(self.base_address, [addrpacenote + 0xC * i + 0x08]))
             })
 
     def step(self):
         if len(self.pacenotes):
-            if self.pacenotes[0].distance < self.drive_distance():
-                del self.pacenote[0]
+            if self.pacenotes[0]['distance'] < self.drive_distance():
+                del self.pacenotes[0]
             

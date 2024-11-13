@@ -30,8 +30,7 @@ class RBREnv(gym.Env):
             time.sleep(2)
 
         self.game.load_pacenotes()
-        self.action.handbrake()
-        while not self.game.is_stage_started():      
+        while not self.game.is_stage_started():
             time.sleep(0.2)
 
     def reset(self, seed=None):
