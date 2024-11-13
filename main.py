@@ -4,7 +4,7 @@ from env import RBREnv
 
 def evaluate():
     env = RBREnv(shakedown=False)
-    model = PPO.load("model/ppo-rbragent", env=env)
+    model = PPO.load("pretrained/ppo-rbragent", env=env)
     mean_reward, std_reward = evaluate_policy(model, model.get_env(), n_eval_episodes=10)
     print(f"final evaluate result: {mean_reward}, {std_reward}")
 

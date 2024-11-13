@@ -23,12 +23,5 @@ def train():
     print("training finished, save final model.")
     model.save(os.path.join(MODEL_DIR, FINAL_MODEL))
 
-def train_no_save():
-    env = RBREnv(shakedown=True)
-    model = PPO("MlpPolicy", env, verbose=1)
-    model.learn(total_timesteps=10_000)
-
-
 if __name__ == '__main__':
-    train_no_save()
-    # train()
+    train()

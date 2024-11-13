@@ -1,4 +1,5 @@
 import ctypes
+import ctypes.wintypes
 import time
 import win32gui
 import win32con
@@ -8,9 +9,9 @@ from pymem.ptypes import RemotePointer
 
 class COPYDATASTRUCT(ctypes.Structure):
     _fields_ = [
-        ("dwData", ctypes.c_ulong),  # Custom data identifier
-        ("cbData", ctypes.c_ulong),  # Size of the data
-        ("lpData", ctypes.c_void_p)   # Pointer to the data
+        ("dwData", ctypes.wintypes.ULONG),  # Custom data identifier
+        ("cbData", ctypes.wintypes.DWORD),  # Size of the data
+        ("lpData", ctypes.wintypes.LPVOID)   # Pointer to the data
     ]
 
 class RBRGame:
@@ -43,20 +44,13 @@ class RBRGame:
         hwnd = win32gui.FindWindow(None, "Richard Burns Rally - DirectX9\0")
         if hwnd:
             win32gui.SetForegroundWindow(hwnd)
-            win32gui.SendMessage(hwnd, message, wparam, lparam)
-
-    def start(self):
-        self.sendmessage(win32con.WM_KEYDOWN, win32con.VK_ESCAPE, 0)
-        time.sleep(0.1)
-        self.sendmessage(win32con.WM_KEYUP, win32con.VK_ESCAPE, 0)
+            win32gui.SendMessage(hwnd, message, wparam, lparam)    
 
     def restart(self):
-        return
-        data = ctypes.create_string_buffer(0)  # Empty buffer or actual data if needed
         cds = COPYDATASTRUCT()
         cds.dwData = 3  # RSF Quick Restart Stage
-        cds.cbData = ctypes.sizeof(data)  # Size of the data
-        cds.lpData = ctypes.cast(data, ctypes.c_void_p)  # Cast to void pointer
+        cds.cbData = 0  # Size of the data
+        cds.lpData = ctypes.c_void_p(None)  # Cast to void pointer
         self.sendmessage(win32con.WM_COPYDATA, 0xDEAF01, ctypes.byref(cds))
 
     def gamemode(self):
@@ -136,16 +130,17 @@ class RBRGame:
     def pacenote(self):
         if len(self.pacenotes):
             pacenote = self.pacenotes[0]
-            return [float(pacenote.type), float(pacenote.distance), float(pacenote.distance - self.drive_distance())]
-        return [0.0, 0.0, 0.0]
+            return [float(pacenote.type), float(pacenote.distance - self.drive_distance())]
+        return [0.0, 0.0]
     
     def load_pacenotes(self):
         self.pacenotes.clear()
         numpacenotes = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x20]))
+        addrpacenote = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x24]))
         for i in range(numpacenotes):
             self.pacenotes.append({
-                'type': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, 0x24, 0xC * i + 0x00])),
-                'distance': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, 0x24, 0xC * i, 0x08]))
+                'type': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, addrpacenote + 0xC * i + 0x00])),
+                'distance': self.pm.read_int(self.address(self.base_address + 0x3EA8B8, [0x10, addrpacenote + 0xC * i, 0x08]))
             })
 
     def step(self):
