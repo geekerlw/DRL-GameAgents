@@ -12,6 +12,7 @@ class RBRGame:
         self.pm = None
         self.base_address = 0
         self.pacenotes = []
+        self.step_pacenotes = []
 
     def attach(self):
         if self.pm != None:
@@ -119,11 +120,14 @@ class RBRGame:
         return [throttle, brake, handbrake, steer, clutch]
     
     def pacenote(self):
-        if len(self.pacenotes):
-            pacenote = self.pacenotes[0]
+        if len(self.step_pacenotes):
+            pacenote = self.step_pacenotes[0]
             return [float(pacenote['type']), float(pacenote['distance'] - self.drive_distance())]
         return [0.0, 0.0]
-    
+
+    def is_pacenotes_loaded(self):
+        return len(self.pacenotes)
+
     def load_pacenotes(self):
         self.pacenotes.clear()
         numpacenotes = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x20]))
@@ -134,8 +138,11 @@ class RBRGame:
                 'distance': self.pm.read_int(self.address(self.base_address, [addrpacenote + 0xC * i + 0x08]))
             })
 
+    def reset_pacenotes(self):
+        self.step_pacenotes = self.pacenotes
+
     def step(self):
-        if len(self.pacenotes):
-            if self.pacenotes[0]['distance'] < self.drive_distance():
-                del self.pacenotes[0]
+        if len(self.step_pacenotes):
+            if self.step_pacenotes[0]['distance'] < self.drive_distance():
+                del self.step_pacenotes[0]
             

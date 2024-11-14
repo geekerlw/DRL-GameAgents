@@ -29,9 +29,11 @@ class RBREnv(gym.Env):
             print("stage is not loaded, select a stage to start.")
             time.sleep(2)
 
+        if not self.game.is_pacenotes_loaded():
+            self.game.load_pacenotes()
+
+        self.game.reset_pacenotes()
         while not self.game.is_stage_started():
-            if self.game.startcount() <= 0.6:
-                self.game.load_pacenotes()
             time.sleep(0.2)
 
     def reset(self, seed=None):
