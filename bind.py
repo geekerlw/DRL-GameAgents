@@ -41,6 +41,20 @@ def main():
 
         action.reset()
 
+        print("start rbrcontrol esc bind")
+        for i in range(5):
+            action.back()
+            time.sleep(1)
+
+        action.reset()
+
+        print("start rbrcontrol restart bind")
+        for i in range(5):
+            action.start()
+            time.sleep(1)
+
+        action.reset()
+
         print("free to set other keys")
         time.sleep(20)
 

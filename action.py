@@ -54,6 +54,20 @@ class Action:
             self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_A)
             self.gamepad.update()
 
+    def back(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
+        self.gamepad.update()
+        time.sleep(0.5)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_BACK)
+        self.gamepad.update()
+
+    def start(self):
+        self.gamepad.press_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
+        self.gamepad.update()
+        time.sleep(0.5)
+        self.gamepad.release_button(button=vg.XUSB_BUTTON.XUSB_GAMEPAD_START)
+        self.gamepad.update()
+
     def reset(self):
         self.gamepad.reset()
         self.gamepad.update()
