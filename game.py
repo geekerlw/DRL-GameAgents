@@ -73,6 +73,9 @@ class RBRGame:
     def drive_distance(self):
         return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x20]))
     
+    def travel_distance(self):
+        return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x24]))
+
     def left_distance(self):
         return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x28]))
 
