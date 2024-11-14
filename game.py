@@ -7,13 +7,6 @@ import win32api
 import pymem
 from pymem.ptypes import RemotePointer
 
-class COPYDATASTRUCT(ctypes.Structure):
-    _fields_ = [
-        ("dwData", ctypes.wintypes.ULONG),  # Custom data identifier
-        ("cbData", ctypes.wintypes.DWORD),  # Size of the data
-        ("lpData", ctypes.wintypes.LPVOID)   # Pointer to the data
-    ]
-
 class RBRGame:
     def __init__(self):
         self.pm = None
@@ -39,19 +32,6 @@ class RBRGame:
                 remote_pointer = RemotePointer(self.pm.process_handle, remote_pointer.value + offset)
             else:
                 return remote_pointer.value + offset
-    
-    def sendmessage(self, message, wparam, lparam):
-        hwnd = win32gui.FindWindow(None, "Richard Burns Rally - DirectX9\0")
-        if hwnd:
-            win32gui.SetForegroundWindow(hwnd)
-            win32gui.SendMessage(hwnd, message, wparam, lparam)
-
-    def restart(self):
-        cds = COPYDATASTRUCT()
-        cds.dwData = 3  # RSF Quick Restart Stage
-        cds.cbData = 0  # Size of the data
-        cds.lpData = ctypes.c_void_p(None)  # Cast to void pointer
-        self.sendmessage(win32con.WM_COPYDATA, 0xDEAF01, ctypes.byref(cds))
 
     def gamemode(self):
         return self.pm.read_int(self.address(self.base_address + 0x3EAC48, [0x728]))
@@ -63,7 +43,7 @@ class RBRGame:
         return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x244]))
 
     def is_stage_loaded(self):
-        return self.gamemode() == 0x0A and self.loadmode() == 0x08 and self.startcount() >= float(6.0)
+        return self.gamemode() == 0x0A and self.loadmode() == 0x08 and self.startcount() == float(7.0)
 
     def is_stage_started(self):
         return self.gamemode() == 0x01 and self.startcount() < float(0.0)

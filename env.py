@@ -23,7 +23,7 @@ class RBREnv(gym.Env):
 
         if self.game.is_stage_started():
             print("restart game.")
-            self.game.restart()
+            self.action.start()
 
         while not self.game.is_stage_loaded():
             print("stage is not loaded, select a stage to start.")
@@ -80,7 +80,7 @@ class RBREnv(gym.Env):
         return False
     
     def reward(self):
-        reward = 1 # step base reward.
+        reward = 10 # step base reward.
         reward -= (self.game.race_time() / 10.0) * 0.1
         if self.game.car_rpm() < 1500 or self.game.car_rpm() > 6500:
             reward -= 1
