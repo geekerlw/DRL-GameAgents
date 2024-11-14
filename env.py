@@ -29,24 +29,22 @@ class RBREnv(gym.Env):
             print("stage is not loaded, select a stage to start.")
             time.sleep(2)
 
-        if not self.game.is_pacenotes_loaded():
-            self.game.load_pacenotes()
-
-        self.game.reset_pacenotes()
+        self.game.load_pacenotes()
         while not self.game.is_stage_started():
             time.sleep(0.2)
 
     def reset(self, seed=None):
+        self.game.reset()
         self.action.reset()
         self.restart_game()
         return self.numeric.take(), {}
 
     def step(self, action):
-        self.action.execute(action)
-        time.sleep(0.1) # need some delay to wait game state update
-        self.game.step()
-        reward = self.reward()
+        reward = self.action.execute(action)
+        time.sleep(0.2) # need some delay to wait game state update
+        reward += self.reward()
         print(f"take action: {action}, got reward: {reward}")
+        self.game.step()
         return self.numeric.take(), reward, self.done(), self.truncated(), {}
     
     def done(self):
@@ -72,7 +70,7 @@ class RBREnv(gym.Env):
             print("saddly, car turn into a wrong way.")
             return True
 
-        if self.game.is_stage_started() and abs(self.game.car_speed()) <= 0.1:
+        if self.game.is_stage_started() and self.game.car_speed() == 0.0:
             print("saddly, car maybe stoped.")
             return True
 
@@ -85,9 +83,13 @@ class RBREnv(gym.Env):
     def reward(self):
         reward = 0
         reward -= 1 # step base reward, more step means more time and less reward.
+        print(f"last {self.game.last_distance}, cur: {self.game.travel_distance()}")
+        if self.game.last_distance < self.game.travel_distance():
+            reward += 5
+
         if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000: # too low or high rpm, bad gear keep.
             reward -= 1
-        throttle, brake, handbrake, _, _ = self.game.car_control()
+        throttle, brake, handbrake, _= self.game.car_control()
         if throttle >= 0.9 and brake < 0.1 and handbrake == 0: # full throttle
             reward += 1
         if brake > 0.8 or handbrake < 0.8: # too high brake and bad handbrake operation
@@ -100,9 +102,13 @@ class RBREnv(gym.Env):
             reward -= 1
 
         speed = self.game.car_speed()
-        if speed < 60:
+        if speed < 0:
+            reward -= 3
+        elif speed > 0 and speed < 60:
+            reward -= 2
+        elif speed >= 60 and speed < 100:
             reward -= 1
-        elif speed > 120:
+        elif speed > 100:
             reward += 1
 
         gear = self.game.car_gear()

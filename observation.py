@@ -1,35 +1,35 @@
+import numpy as np
 class Numeric:
     def __init__(self, game):
         self.game = game
 
     def dementions(self):
-        return 27
+        return 8
 
     def take(self) -> list[float]:
         states = []
         states.extend(self.carstate())
         states.extend(self.racestate())
+        print(f"observation state: {states}")
         assert(self.dementions() == len(states))
+        if np.isnan(states).all():
+            print(f"observations contain Nan: {states}")
         return states
     
-    # 18 dementions
+    # 6 dementions
     def carstate(self) -> list[float]:
         state = []
         state.append(self.game.car_speed())
         state.append(self.game.car_rpm())
-        state.append(self.game.car_temp())
-        state.append(float(self.game.car_gear()))
-        state.append(self.game.car_turbo())
         state.extend(self.game.car_look())
-        state.extend(self.game.car_pos())
-        state.extend(self.game.car_spin())
-        state.extend(self.game.car_acc())
-        state.extend(self.game.car_control())
+        if np.isnan(state).all():
+            print(f"observations carstate contain Nan: {state}")
         return state
 
-    # 3 dementions
+    # 2 dementions
     def racestate(self) -> list[float]:
         state = []
-        state.append(self.game.startcount())
         state.extend(self.game.pacenote())
+        if np.isnan(state).all():
+            print(f"observations racestate contain Nan: {state}")
         return state

@@ -1,9 +1,3 @@
-import ctypes
-import ctypes.wintypes
-import time
-import win32gui
-import win32con
-import win32api
 import pymem
 from pymem.ptypes import RemotePointer
 
@@ -12,7 +6,10 @@ class RBRGame:
         self.pm = None
         self.base_address = 0
         self.pacenotes = []
-        self.step_pacenotes = []
+        self.last_distance = 0
+
+    def reset(self):
+        self.last_distance = 0
 
     def attach(self):
         if self.pm != None:
@@ -22,8 +19,7 @@ class RBRGame:
             self.pm = pymem.Pymem("RichardBurnsRally_SSE.exe")
             self.base_address = self.pm.base_address
             return True
-        except Exception as e:
-            print(f"attach process error: {e}")
+        except:
             return False
 
     def address(self, base, offsets):
@@ -119,33 +115,26 @@ class RBRGame:
         brake = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x860]))
         handbrake = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x864]))
         steer = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x868]))
-        clutch = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x86C]))
-        return [throttle, brake, handbrake, steer, clutch]
+        return [throttle, brake, handbrake, steer]
     
     def pacenote(self):
-        if len(self.step_pacenotes):
-            pacenote = self.step_pacenotes[0]
+        if len(self.pacenotes):
+            pacenote = self.pacenotes[0]
             return [float(pacenote['type']), float(pacenote['distance'] - self.drive_distance())]
         return [0.0, 0.0]
-
-    def is_pacenotes_loaded(self):
-        return len(self.pacenotes)
 
     def load_pacenotes(self):
         self.pacenotes.clear()
         numpacenotes = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x20]))
-        addrpacenote = self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x24]))
         for i in range(numpacenotes):
             self.pacenotes.append({
-                'type': self.pm.read_int(self.address(self.base_address, [addrpacenote + 0xC * i + 0x00])),
-                'distance': self.pm.read_int(self.address(self.base_address, [addrpacenote + 0xC * i + 0x08]))
+                'type': self.pm.read_int(self.address(self.base_address + 0x3EABA8, [0x10, 0x24, 0xC * i])),
+                'distance': self.pm.read_float(self.address(self.base_address + 0x3EABA8, [0x10, 0x24, 0xC * i + 0x8]))
             })
 
-    def reset_pacenotes(self):
-        self.step_pacenotes = self.pacenotes
-
     def step(self):
-        if len(self.step_pacenotes):
-            if self.step_pacenotes[0]['distance'] < self.drive_distance():
-                del self.step_pacenotes[0]
+        self.last_distance = self.travel_distance()
+        if len(self.pacenotes):
+            if (self.drive_distance() + 10.0) > self.pacenotes[0]['distance']:
+                del self.pacenotes[0]
             
