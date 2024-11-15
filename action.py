@@ -13,22 +13,30 @@ class Action:
     def execute(self, actions):
         reward = 0
         self.steer(actions[0])
+        if actions[0] < -0.2 and actions[0] > 0.2:
+            reward -= 1
+        else:
+            reward += 1
         if actions[1] >= 0.5:
             self.throttle((actions[1] + 1.0) / 2)
             reward += 2
         elif actions[1] < -0.9:
             self.handbrake()
-            reward -= 4
+            reward -= 1
         elif actions[1] < -0.5:
             self.brake((actions[1] + 1.0) / 2)
-            reward -= 2
+            reward -= 1
+        else:
+            reward += 1
     
         if actions[2] >= 0.9:
             self.upgear()
-            reward -= 3
+            reward -= 1
         elif actions[2] <= -0.9:
             self.downgear()
-            reward -= 3
+            reward -= 1
+        else:
+            reward += 1
 
         return reward
 

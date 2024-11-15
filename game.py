@@ -1,3 +1,4 @@
+import time
 import pymem
 from pymem.ptypes import RemotePointer
 
@@ -6,6 +7,7 @@ class RBRGame:
         self.pm = None
         self.base_address = 0
         self.pacenotes = []
+        self.timetick = time.time()
         self.last_distance = 0
 
     def reset(self):
@@ -133,7 +135,9 @@ class RBRGame:
             })
 
     def step(self):
-        self.last_distance = self.travel_distance()
+        if time.time() - self.timetick > 2:
+            self.last_distance = self.travel_distance()
+            self.timetick = time.time()
         if len(self.pacenotes):
             if (self.drive_distance() + 10.0) > self.pacenotes[0]['distance']:
                 del self.pacenotes[0]

@@ -85,7 +85,9 @@ class RBREnv(gym.Env):
         reward -= 1 # step base reward, more step means more time and less reward.
         print(f"last {self.game.last_distance}, cur: {self.game.travel_distance()}")
         if self.game.last_distance < self.game.travel_distance():
-            reward += 5
+            reward += 1
+        else:
+            reward -= 1
 
         if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000: # too low or high rpm, bad gear keep.
             reward -= 1
