@@ -47,7 +47,7 @@ class RBREnv(gym.Env):
         time.sleep(0.2) # need some delay to wait game state update
         reward = self.reward()
         self.total_rewards += reward
-        print(f"take action: {action}, got reward: {reward}")
+        print(f"take action: {action}, got reward: {reward}, total: {self.total_rewards}")
         return self.numeric.take(), reward, self.done(), self.truncated(), {}
     
     def done(self):
