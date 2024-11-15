@@ -4,32 +4,29 @@ class Numeric:
         self.game = game
 
     def dementions(self):
-        return 8
+        return 13 + 7
 
     def take(self) -> list[float]:
         states = []
         states.extend(self.carstate())
         states.extend(self.racestate())
-        print(f"observation state: {states}")
+        # print(f"observation state: {states}")
         assert(self.dementions() == len(states))
-        if np.isnan(states).all():
-            print(f"observations contain Nan: {states}")
         return states
     
-    # 6 dementions
     def carstate(self) -> list[float]:
         state = []
         state.append(self.game.car_speed())
         state.append(self.game.car_rpm())
+        state.append(self.game.car_gear())
         state.extend(self.game.car_look())
-        if np.isnan(state).all():
-            print(f"observations carstate contain Nan: {state}")
+        state.extend(self.game.car_spin())
+        state.extend(self.game.car_acc())
         return state
 
-    # 2 dementions
     def racestate(self) -> list[float]:
         state = []
+        state.append(self.game.drive_distance())
         state.extend(self.game.pacenote())
-        if np.isnan(state).all():
-            print(f"observations racestate contain Nan: {state}")
+        state.extend(self.game.car_pos())
         return state

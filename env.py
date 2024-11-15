@@ -10,6 +10,7 @@ class RBREnv(gym.Env):
     def __init__(self, shakedown=False):
         super(RBREnv, self).__init__()
         self.shakedown = shakedown
+        self.total_rewards = 0
         self.game = RBRGame()
         self.numeric = Numeric(self.game)
         self.action = Action()
@@ -34,17 +35,19 @@ class RBREnv(gym.Env):
             time.sleep(0.2)
 
     def reset(self, seed=None):
+        self.total_rewards = 0
         self.game.reset()
         self.action.reset()
         self.restart_game()
         return self.numeric.take(), {}
 
     def step(self, action):
-        reward = self.action.execute(action)
-        time.sleep(0.2) # need some delay to wait game state update
-        reward += self.reward()
-        print(f"take action: {action}, got reward: {reward}")
         self.game.step()
+        self.action.execute(action)
+        time.sleep(0.2) # need some delay to wait game state update
+        reward = self.reward()
+        self.total_rewards += reward
+        print(f"take action: {action}, got reward: {reward}")
         return self.numeric.take(), reward, self.done(), self.truncated(), {}
     
     def done(self):
@@ -59,23 +62,12 @@ class RBREnv(gym.Env):
         return False
     
     def truncated(self):
-        if self.game.startcount() > -5.0: # make sure racing over 5 seconds.
-            return False
-
-        if self.game.race_failstart():
-            print("saddly, race start failed.")
-            return True
-
-        if self.game.race_wrongway():
-            print("saddly, car turn into a wrong way.")
-            return True
-
-        if self.game.is_stage_started() and self.game.car_speed() == 0.0:
-            print("saddly, car maybe stoped.")
-            return True
-
         if self.game.car_temp() >= 130:
             print("saddly, car temp is too high, maybe damaged.")
+            return True
+        
+        if self.total_rewards < -1000:
+            print("saddly, too many mistakes, need to restart.")
             return True
     
         return False
@@ -83,40 +75,23 @@ class RBREnv(gym.Env):
     def reward(self):
         reward = 0
         reward -= 1 # step base reward, more step means more time and less reward.
-        print(f"last {self.game.last_distance}, cur: {self.game.travel_distance()}")
-        if self.game.last_distance < self.game.travel_distance():
-            reward += 1
-        else:
+        if self.game.last_distance > self.game.travel_distance(): # back way detected
             reward -= 1
 
-        if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000: # too low or high rpm, bad gear keep.
+        if self.game.race_wrongway(): # wrong way.
             reward -= 1
+
+        if self.game.is_stage_started() and self.game.car_speed() == 0.0: # car stoped.
+            reward -= 1
+
         throttle, brake, handbrake, _= self.game.car_control()
-        if throttle >= 0.9 and brake < 0.1 and handbrake == 0: # full throttle
-            reward += 1
-        if brake > 0.8 or handbrake < 0.8: # too high brake and bad handbrake operation
-            reward -= 1
-        if brake > 0.7 and throttle > 0.2: # brake with throttle, bad operation
-            reward -= 1
-        if throttle > 0.7 and (brake > 0.2 or handbrake > 0.2): # throttle with brake, bad operaton
-            reward -= 1
-        if handbrake > 0.8 and throttle > 0.6: # throttle when handbrake on, bad operation
+        reward -= (1.0 - throttle) / 1.0 # more throttle more score.
+        reward -= 1.0 - (brake - 1.0) / 1.0 # more brake less score.
+        if handbrake < 0.9:
             reward -= 1
 
-        speed = self.game.car_speed()
-        if speed < 0:
-            reward -= 3
-        elif speed > 0 and speed < 60:
-            reward -= 2
-        elif speed >= 60 and speed < 100:
-            reward -= 1
-        elif speed > 100:
-            reward += 1
-
-        gear = self.game.car_gear()
-        if gear < 2: # R/N bad operation
-            reward -= 1
-        elif gear > 4: # highway gears
-            reward += 1
+        reward -= (10000.0 - self.game.car_rpm()) / 10000.0 # high rpm more score.
+        reward -= (220.0 - self.game.car_speed()) / 220.0 # high speed more score.
+        reward -= (7.0 - self.game.car_gear()) / 7.0 # high gear more score.
 
         return reward

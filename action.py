@@ -7,38 +7,22 @@ class Action:
         self.gamepad = vg.VX360Gamepad()
     
     def dimentions(self):
-        return 3
+        return 4
 
     # actions will inside [-1.0, 1.0], expand by yourself.
     def execute(self, actions):
-        reward = 0
         self.steer(actions[0])
-        if actions[0] < -0.2 and actions[0] > 0.2:
-            reward -= 1
-        else:
-            reward += 1
-        if actions[1] >= 0.5:
-            self.throttle((actions[1] + 1.0) / 2)
-            reward += 2
-        elif actions[1] < -0.9:
-            self.handbrake()
-            reward -= 1
-        elif actions[1] < -0.5:
-            self.brake((actions[1] + 1.0) / 2)
-            reward -= 1
-        else:
-            reward += 1
-    
-        if actions[2] >= 0.9:
-            self.upgear()
-            reward -= 1
-        elif actions[2] <= -0.9:
-            self.downgear()
-            reward -= 1
-        else:
-            reward += 1
+        self.throttle((actions[1] + 1.0) / 2)
 
-        return reward
+        if actions[2] <= -0.9:
+            self.handbrake()
+        else:
+            self.brake((actions[2] + 1.0) / 2)
+            
+        if actions[3] >= 0.5:
+            self.upgear()
+        elif actions[3] <= -0.5:
+            self.downgear()
 
     def steer(self, weight): # weight is float between -1.0 and 1.0
         self.gamepad.left_joystick_float(x_value_float=weight, y_value_float=0)
