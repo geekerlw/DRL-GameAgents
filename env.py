@@ -62,36 +62,65 @@ class RBREnv(gym.Env):
         return False
     
     def truncated(self):
-        if self.game.car_temp() >= 130:
+        if self.game.car_temp() >= 130 and self.game.car_speed() == 0.0:
             print("saddly, car temp is too high, maybe damaged.")
+            return True
+
+        if self.game.car_speed() < -10:
+            print("saddly, car is reversing.")
+            return True
+        
+        if self.game.race_wrongway(): # wrong way.
+            print("saddly, car is driving to wrong way.")
             return True
         
         if self.total_rewards < -1000:
-            print("saddly, too many mistakes, need to restart.")
+            print("saddly, too many mistakes.")
             return True
-    
+        
+        distance = np.linalg.norm(np.array(self.game.car_pos()[:3]) - np.array(self.game.last_pos[:3]))
+        if self.game.startcount() < -10.0 and distance < 1e-3:
+            print("saddly, car maybe stoped after game start ten seconds.")
+            return True
+
         return False
     
     def reward(self):
         reward = 0
         reward -= 1 # step base reward, more step means more time and less reward.
         if self.game.last_distance > self.game.travel_distance(): # back way detected
-            reward -= 1
+            reward -= 2
+        else:
+            reward += 2
 
-        if self.game.race_wrongway(): # wrong way.
-            reward -= 1
+        if self.game.car_rpm() < 4000 or self.game.car_rpm() > 6500:
+            reward -= 2
+        else:
+            reward += 1
 
-        if self.game.is_stage_started() and self.game.car_speed() == 0.0: # car stoped.
-            reward -= 1
+        speed = self.game.car_speed()
+        if speed < -10:
+            reward -= 100
+        elif -10 <= speed and speed < 10:
+            reward -= 2
+        else:
+            reward -= int(self.game.car_speed() / 10)
 
-        throttle, brake, handbrake, _= self.game.car_control()
-        reward -= (1.0 - throttle) / 1.0 # more throttle more score.
-        reward -= 1.0 - (brake - 1.0) / 1.0 # more brake less score.
-        if handbrake < 0.9:
-            reward -= 1
+        if self.game.car_temp() >= 130 and self.game.car_speed() == 0.0:
+            reward -= 100
+        
+        if self.game.race_wrongway():
+            reward -= 100
 
-        reward -= (10000.0 - self.game.car_rpm()) / 10000.0 # high rpm more score.
-        reward -= (220.0 - self.game.car_speed()) / 220.0 # high speed more score.
-        reward -= (7.0 - self.game.car_gear()) / 7.0 # high gear more score.
+        distance = np.linalg.norm(np.array(self.game.car_pos()[:3]) - np.array(self.game.last_pos[:3]))
+        print(f"last distance diff: {distance}")
+        if distance < 1e-3:
+            reward -= 100
+
+        # throttle, brake, handbrake, _= self.game.car_control()
+        # reward -= (1.0 - throttle) / 1.0 # more throttle more score.
+        # reward -= 1.0 - (brake - 1.0) / 1.0 # more brake less score.
+        # if handbrake < 0.9:
+        #     reward -= 1
 
         return reward

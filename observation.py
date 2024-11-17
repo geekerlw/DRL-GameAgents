@@ -4,7 +4,7 @@ class Numeric:
         self.game = game
 
     def dementions(self):
-        return 13 + 7
+        return 13 + 2
 
     def take(self) -> list[float]:
         states = []
@@ -26,7 +26,5 @@ class Numeric:
 
     def racestate(self) -> list[float]:
         state = []
-        state.append(self.game.drive_distance())
         state.extend(self.game.pacenote())
-        state.extend(self.game.car_pos())
         return state

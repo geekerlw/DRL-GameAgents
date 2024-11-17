@@ -9,9 +9,11 @@ class RBRGame:
         self.pacenotes = []
         self.timetick = time.time()
         self.last_distance = 0
+        self.last_pos = [0.0, 0.0, 0.0, 0.0]
 
     def reset(self):
         self.last_distance = 0
+        self.last_pos = [0.0, 0.0, 0.0, 0.0]
 
     def attach(self):
         if self.pm != None:
@@ -135,8 +137,9 @@ class RBRGame:
             })
 
     def step(self):
-        if time.time() - self.timetick > 2:
+        if time.time() - self.timetick > 3:
             self.last_distance = self.travel_distance()
+            self.last_pos = self.car_pos()
             self.timetick = time.time()
         if len(self.pacenotes):
             if (self.drive_distance() + 10.0) > self.pacenotes[0]['distance']:
