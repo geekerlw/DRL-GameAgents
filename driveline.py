@@ -46,9 +46,9 @@ class DriveLine:
         
         for (i, point) in enumerate(self.points):
             if i > 0 and point[6] > distance:
-                return points[i-1], points[i]
+                return self.points[i-1], self.points[i]
 
-        return points[0], points[-1]   
+        return self.points[0], self.points[-1]   
 
     def outline(self, distance, pos):
         last_point, next_point = self.locate_point(distance)
@@ -56,6 +56,8 @@ class DriveLine:
         return distance > 3
     
     def offset(self, distance, last_pos, curr_pos):
+        if last_pos == curr_pos:
+            return 0
         last_point, _ = self.locate_point(distance)
         target_direction = last_point[3:6]
         direction = utils.calculate_direction_vector(last_pos, curr_pos)

@@ -34,5 +34,6 @@ class Numeric:
         state = []
         state.extend(self.game.pacenote())
         state.extend(self.game.car_pos())
-        state.extend(self.driveline.next_point(self.game.drive_distance()))
+        _, next = self.driveline.locate_point(self.game.drive_distance())
+        state.extend(next)
         return state

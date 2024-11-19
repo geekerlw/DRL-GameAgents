@@ -32,7 +32,7 @@ class RBREnv(gym.Env):
             print("stage is not loaded, select a stage to start.")
             time.sleep(2)
 
-        self.driveline.load()
+        self.driveline.load(self.game.stageid())
         self.game.load_pacenotes()
         while not self.game.is_stage_started():
             time.sleep(0.2)
@@ -115,7 +115,7 @@ class RBREnv(gym.Env):
 
         speed = self.game.car_speed()
         if speed < 60:
-            reward -= (6 - int(speed) / 10)
+            reward -= int(6 - int(speed) / 10)
         else:
             reward += int(self.game.car_speed() / 10)
 
