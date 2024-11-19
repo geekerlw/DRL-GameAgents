@@ -11,7 +11,7 @@ def calculate_direction_vector(point_a, point_b):
     # 归一化方向向量
     norm = np.linalg.norm(direction_vector)
     if norm == 0:
-        raise ValueError("The two points are the same; direction vector cannot be normalized.")
+        return [0, 0, 0]
     
     unit_direction_vector = direction_vector / norm
     return unit_direction_vector
