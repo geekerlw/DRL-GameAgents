@@ -16,7 +16,7 @@ def train():
             model = PPO("MlpPolicy", env, verbose=1)
         model.n_steps = 64
         model.batch_size = 16
-        model.learn(total_timesteps=10_000)
+        model.learn(total_timesteps=100_000)
     except Exception as e:
         print(f"training abort: {e}, save half trained model.")
         model.save(os.path.join(MODEL_DIR, HALF_MODEL))
