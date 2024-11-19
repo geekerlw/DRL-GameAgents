@@ -9,11 +9,11 @@ class RBRGame:
         self.pacenotes = []
         self.timetick = time.time()
         self.last_distance = 0
-        self.last_pos = [0.0, 0.0, 0.0, 0.0]
+        self.last_pos = [0.0, 0.0, 0.0]
 
     def reset(self):
         self.last_distance = 0
-        self.last_pos = [0.0, 0.0, 0.0, 0.0]
+        self.last_pos = [0.0, 0.0, 0.0]
 
     def attach(self):
         if self.pm != None:
@@ -103,7 +103,7 @@ class RBRGame:
         y = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x144]))
         z = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x148]))
         w = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x14C]))
-        return [x, y, z, w]
+        return [x, y, z]
 
     def car_spin(self):
         x = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x190]))

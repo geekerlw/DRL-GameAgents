@@ -6,9 +6,14 @@ import utils
 class DriveLine:
     def __init__(self):
         self.pointnum = 0
-        self.points = []
+        self.points = [] # [x, y, z, tx, ty, tz, distance, reserved]
+
+    def reset(self):
+        self.points.clear()
+        self.pointnum = 0
 
     def load(self, stage):
+        self.reset()
         filepath = os.path.join("rsfdata", f"{stage}-driveline.ini")
         with open(filepath, 'r') as file:
             lines = file.readlines()
@@ -34,6 +39,27 @@ class DriveLine:
     def record(self, x, y, z, tx, ty, tz, distance, reversed):
         self.points.append([x, y, z, tx, ty, tz, distance, reversed])
         self.pointnum += 1
+
+    def locate_point(self, distance):
+        if self.pointnum < 2:
+            raise ValueError("driveline data empty, load it first.")
+        
+        for (i, point) in enumerate(self.points):
+            if i > 0 and point[6] > distance:
+                return points[i-1], points[i]
+
+        return points[0], points[-1]   
+
+    def outline(self, distance, pos):
+        last_point, next_point = self.locate_point(distance)
+        distance = utils.calculate_point_to_segment_distance(pos, last_point[:3], next_point[:3])
+        return distance > 3
+    
+    def offset(self, distance, last_pos, curr_pos):
+        last_point, _ = self.locate_point(distance)
+        target_direction = last_point[3:6]
+        direction = utils.calculate_direction_vector(last_pos, curr_pos)
+        return utils.calculate_angle_between_vectors(direction, target_direction)
 
 if __name__ == '__main__':
     game = RBRGame()
@@ -66,7 +92,7 @@ if __name__ == '__main__':
     for i in range(len(points) - 1):
         curr = points[i]
         next = points[i+1]
-        direction = utils.calculate_direction_vector((curr['pos'][0], curr['pos'][1], curr['pos'][2]), (next['pos'][0], next['pos'][1], next['pos'][2]))
+        direction = utils.calculate_direction_vector(curr['pos'], next['pos'])
         driveline.record(curr['pos'][0], curr['pos'][1], curr['pos'][2], direction[0], direction[1], direction[2], curr['distance'], 0)
 
     driveline.save(stageid)

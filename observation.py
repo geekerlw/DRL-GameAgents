@@ -1,10 +1,16 @@
-import numpy as np
+from driveline import DriveLine
+from game import RBRGame
+
 class Numeric:
-    def __init__(self, game):
+    def __init__(self, game: RBRGame, driveline: DriveLine):
         self.game = game
+        self.driveline = driveline
+
+    def reset(self):
+        pass
 
     def dementions(self):
-        return 13 + 2
+        return 13 + 13
 
     def take(self) -> list[float]:
         states = []
@@ -27,4 +33,6 @@ class Numeric:
     def racestate(self) -> list[float]:
         state = []
         state.extend(self.game.pacenote())
+        state.extend(self.game.car_pos())
+        state.extend(self.driveline.next_point(self.game.drive_distance()))
         return state
