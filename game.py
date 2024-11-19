@@ -87,6 +87,9 @@ class RBRGame:
 
     def race_wrongway(self):
         return 1 == self.pm.read_int(self.address(self.base_address + 0x125FC68, [0x150]))
+
+    def stageid(self):
+        return self.pm.read_int(self.base_address + 0x1460804)
     
     def car_look(self):
         x = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x100]))
