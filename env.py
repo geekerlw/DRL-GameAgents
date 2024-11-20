@@ -98,7 +98,7 @@ class RBREnv(gym.Env):
             print("saddly, car is out of the driveline.")
             return True
         
-        angel = self.driveline.offset(self.game.drive_distance(), self.game.car_pos())
+        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
         if angel > 10:
             print("saddly, car driving to a wrong direction.")
             return True
@@ -108,7 +108,7 @@ class RBREnv(gym.Env):
     def reward(self):
         reward = 0
         reward -= 2 # step base reward, more step means more time and less reward.
-        if self.game.travel_distance() - self.game.last_distance < 3: # back way detected
+        if self.game.travel_distance() - self.game.last_distance < 0: # back way detected
             reward -= 1
         else:
             reward += 1
@@ -124,7 +124,7 @@ class RBREnv(gym.Env):
         else:
             reward += 1
 
-        angel = self.driveline.offset(self.game.drive_distance(), self.game.car_pos())
+        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
         if angel < 10:
             reward += 1
 

@@ -140,7 +140,8 @@ class RBRGame:
             })
 
     def step(self):
-        if time.time() - self.timetick > 3:
+        curtime = time.time()
+        if curtime != self.timetick:
             self.last_distance = self.travel_distance()
             self.last_pos = self.car_pos()
             self.timetick = time.time()
