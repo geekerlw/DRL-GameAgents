@@ -1,7 +1,9 @@
 import os
 import time
-from game import RBRGame
+# from game import RBRGame
 import utils
+import matplotlib.pyplot as plt
+# from mpl_toolkits.mplot3d import Axes3D
 
 class DriveLine:
     def __init__(self):
@@ -39,6 +41,35 @@ class DriveLine:
     def record(self, x, y, z, tx, ty, tz, distance, reversed):
         self.points.append([x, y, z, tx, ty, tz, distance, reversed])
         self.pointnum += 1
+    
+    def show2D(self):
+        plt.figure()
+        x = [point[0] for point in self.points]
+        y = [point[1] for point in self.points]
+        plt.plot(x, y, marker='o', linestyle='-', color='b', label='Data Points')
+
+        plt.title('2D Driveline')
+        plt.xlabel('X Axis')
+        plt.ylabel('Y Axis')
+
+        plt.grid(True)
+        plt.legend()
+        plt.show()
+
+    def show3D(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        x = [point[0] for point in self.points]
+        y = [point[1] for point in self.points]
+        z = [point[2] for point in self.points]
+
+        ax.scatter(x, y, z)
+        ax.set_title('3D Driveline')
+        ax.set_xlabel('X Axis')
+        ax.set_ylabel('Y Axis')
+        ax.set_zlabel('Z Axis')
+        plt.show()
 
     def locate_point(self, distance):
         if self.pointnum < 2:
@@ -63,7 +94,7 @@ class DriveLine:
         direction = utils.calculate_direction_vector(last_pos, curr_pos)
         return utils.calculate_angle_between_vectors(direction, target_direction)
 
-if __name__ == '__main__':
+def record_driveline():
     game = RBRGame()
     driveline = DriveLine()
     while not game.attach():
@@ -98,3 +129,16 @@ if __name__ == '__main__':
         driveline.record(curr['pos'][0], curr['pos'][1], curr['pos'][2], direction[0], direction[1], direction[2], curr['distance'], 0)
 
     driveline.save(stageid)
+    driveline.show2D()
+
+def show_driveline(stageid, show3d=False):
+    driveline = DriveLine()
+    driveline.load(stageid)
+    if show3d:
+        driveline.show3D()
+    else:
+        driveline.show2D()
+
+if __name__ == '__main__':
+    record_driveline()
+    # show_driveline(318)
