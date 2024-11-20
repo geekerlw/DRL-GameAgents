@@ -10,7 +10,7 @@ class Numeric:
         pass
 
     def dementions(self):
-        return 13 + 13
+        return 8 + 8
 
     def take(self) -> list[float]:
         states = []
@@ -24,8 +24,6 @@ class Numeric:
         state = []
         state.append(self.game.car_speed())
         state.append(self.game.car_rpm())
-        state.append(self.game.car_gear())
-        state.extend(self.game.car_look())
         state.extend(self.game.car_spin())
         state.extend(self.game.car_acc())
         return state
@@ -35,5 +33,5 @@ class Numeric:
         state.extend(self.game.pacenote())
         state.extend(self.game.car_pos())
         _, next = self.driveline.locate_point(self.game.drive_distance())
-        state.extend(next)
+        state.extend(next[:3])
         return state
