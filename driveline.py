@@ -86,10 +86,11 @@ class DriveLine:
         distance = utils.calculate_point_to_segment_distance(pos, last_point[:3], next_point[:3])
         return distance > 3
     
-    def offset(self, distance, last_pos, curr_pos):
+    def offset(self, distance, curr_pos):
+        last_point, _ = self.locate_point(distance)
+        last_pos = last_point[0:3]
         if last_pos == curr_pos:
             return 0
-        last_point, _ = self.locate_point(distance)
         target_direction = last_point[3:6]
         direction = utils.calculate_direction_vector(last_pos, curr_pos)
         return utils.calculate_angle_between_vectors(direction, target_direction)

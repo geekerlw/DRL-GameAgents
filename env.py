@@ -97,6 +97,11 @@ class RBREnv(gym.Env):
         if outline:
             print("saddly, car is out of the driveline.")
             return True
+        
+        angel = self.driveline.offset(self.game.drive_distance(), self.game.car_pos())
+        if angel > 10:
+            print("saddly, car driving to a wrong direction.")
+            return True
 
         return False
     
@@ -115,11 +120,12 @@ class RBREnv(gym.Env):
 
         speed = self.game.car_speed()
         if speed < 60:
-            reward -= int(6 - int(speed) / 10)
+            reward -= 1
         else:
-            reward += int(self.game.car_speed() / 10)
+            reward += 1
 
-        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
-        reward -= int(angel / 5)
+        angel = self.driveline.offset(self.game.drive_distance(), self.game.car_pos())
+        if angel < 10:
+            reward += 1
 
         return reward

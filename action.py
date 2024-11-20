@@ -19,10 +19,10 @@ class Action:
         else:
             self.brake((actions[2] + 1.0) / 2)
             
-        if actions[3] >= 0.5:
-            self.upgear()
-        elif actions[3] <= -0.5:
-            self.downgear()
+        # if actions[3] >= 0.5:
+        #     self.upgear()
+        # elif actions[3] <= -0.5:
+        #     self.downgear()
 
     def steer(self, weight): # weight is float between -1.0 and 1.0
         self.gamepad.left_joystick_float(x_value_float=weight, y_value_float=0)
