@@ -109,17 +109,22 @@ class RBREnv(gym.Env):
         reward = 0
         reward -= 3 # step base reward, more step means more time and less reward.
         if self.game.travel_distance() - self.game.last_distance < 0: # back way detected
-            reward -= 1
+            reward -= 2
         else:
             reward += 1
 
-        if self.game.car_rpm() < 4000 or self.game.car_rpm() > 6500:
-            reward -= 1
+        if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000:
+            reward -= 2
+        else:
+            reward += 1
+
+        if self.game.last_gear != self.game.car_gear():
+            reward -= 3
         else:
             reward += 1
 
         if self.game.car_gear() < 2: # R/N gear is bad.
-            reward -= 1
+            reward -= 3
         else:
             reward += 1
 

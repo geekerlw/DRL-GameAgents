@@ -7,11 +7,12 @@ class RBRGame:
         self.pm = None
         self.base_address = 0
         self.pacenotes = []
-        self.timetick = time.time()
+        self.last_gear = 1 # default N
         self.last_distance = 0
         self.last_pos = [0.0, 0.0, 0.0]
 
     def reset(self):
+        self.last_gear = 1 # default N
         self.last_distance = 0
         self.last_pos = [0.0, 0.0, 0.0]
 
@@ -60,6 +61,9 @@ class RBRGame:
     
     def car_rpm(self):
         return self.pm.read_float(self.address(self.base_address + 0x125FC68, [0x10]))
+    
+    def car_gear_last(self):
+        return self.pm.read_int(self.address(self.base_address + 0x4EF660, [0x10DC]))
 
     def car_gear(self):
         return self.pm.read_int(self.address(self.base_address + 0x4EF660, [0x1100]))
@@ -140,11 +144,10 @@ class RBRGame:
             })
 
     def step(self):
-        curtime = time.time()
-        if curtime != self.timetick:
+        if time.time() % 2 == 0:
+            self.last_gear = self.car_gear()
             self.last_distance = self.travel_distance()
             self.last_pos = self.car_pos()
-            self.timetick = time.time()
         if len(self.pacenotes):
             if (self.drive_distance() + 10.0) > self.pacenotes[0]['distance']:
                 del self.pacenotes[0]
