@@ -10,7 +10,7 @@ class Numeric:
         pass
 
     def dementions(self):
-        return 8 + 8
+        return 13 + 8
 
     def take(self) -> list[float]:
         states = []
@@ -23,7 +23,9 @@ class Numeric:
     def carstate(self) -> list[float]:
         state = []
         state.append(self.game.car_speed())
+        state.append(self.game.car_gear())
         state.append(self.game.car_rpm())
+        state.extend(self.game.car_look())
         state.extend(self.game.car_spin())
         state.extend(self.game.car_acc())
         return state

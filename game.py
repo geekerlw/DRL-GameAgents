@@ -7,11 +7,13 @@ class RBRGame:
         self.pm = None
         self.base_address = 0
         self.pacenotes = []
+        self.timetick = time.time()
         self.last_gear = 1 # default N
         self.last_distance = 0
         self.last_pos = [0.0, 0.0, 0.0]
 
     def reset(self):
+        self.timetick = time.time()
         self.last_gear = 1 # default N
         self.last_distance = 0
         self.last_pos = [0.0, 0.0, 0.0]
@@ -106,7 +108,6 @@ class RBRGame:
         x = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x140]))
         y = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x144]))
         z = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x148]))
-        w = self.pm.read_float(self.address(self.base_address + 0x4EF660, [0x14C]))
         return [x, y, z]
 
     def car_spin(self):
@@ -144,10 +145,12 @@ class RBRGame:
             })
 
     def step(self):
-        if time.time() % 3 == 0: # update every three seconds.
+        curtime = time.time()
+        if curtime - self.timetick > 2: # update every two seconds.
             self.last_gear = self.car_gear()
             self.last_pos = self.car_pos()
             self.last_distance = self.drive_distance()
+            self.timetick = curtime
         if len(self.pacenotes):
             if (self.drive_distance() + 10.0) > self.pacenotes[0]['distance']:
                 del self.pacenotes[0]
