@@ -144,7 +144,7 @@ class RBRGame:
             })
 
     def step(self):
-        if self.drive_distance() - self.last_distance > 2:
+        if time.time() % 3 == 0: # update every three seconds.
             self.last_gear = self.car_gear()
             self.last_pos = self.car_pos()
             self.last_distance = self.drive_distance()

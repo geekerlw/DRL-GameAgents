@@ -65,3 +65,10 @@ def calculate_point_to_segment_distance(point, segment_start, segment_end):
     distance = np.linalg.norm(point - nearest_point)
     
     return distance
+
+def calculate_two_points_distance(point1, point2):
+    point1 = np.array(point1)
+    point2 = np.array(point2)
+    
+    distance = np.linalg.norm(point2 - point1)
+    return distance
