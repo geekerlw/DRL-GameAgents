@@ -2,7 +2,7 @@ import time
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
-from observation import Numeric
+from observation import Numeric, Image
 from action import Action
 from game import RBRGame
 from driveline import DriveLine
@@ -14,9 +14,11 @@ class RBREnv(gym.Env):
         self.total_rewards = 0
         self.game = RBRGame()
         self.driveline = DriveLine()
-        self.observation = Numeric(self.game, self.driveline)
+        # self.observation = Numeric(self.game, self.driveline)
+        self.observation = Image()
         self.action = Action()
-        self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.observation.dementions(),), dtype=np.float32)
+        # self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.observation.dementions(),), dtype=np.float32)
+        self.observation_space = spaces.Box(low=0, high=255, shape=(self.observation.dementions(), self.observation.width, self.observation.height, 3), dtype=np.uint8)
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action.dimentions(),), dtype=np.float32)
 
     def restart_game(self):
