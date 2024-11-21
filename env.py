@@ -118,6 +118,11 @@ class RBREnv(gym.Env):
         else:
             reward += 1
 
+        if self.game.car_gear() < 2: # R/N gear is bad.
+            reward -= 1
+        else:
+            reward += 1
+
         speed = self.game.car_speed()
         if speed < 60:
             reward -= (6 - int(speed / 10))  

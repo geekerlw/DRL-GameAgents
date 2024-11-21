@@ -86,8 +86,12 @@ class DriveLine:
         return distance > 2.5
     
     def offset(self, distance, last_pos, curr_pos):
-        if last_pos == curr_pos:
+        if distance < 5: # driveline is recorded every 5 meters, make sure drive over first point.
             return 0
+
+        if last_pos == curr_pos or last_pos[0] == 0 or curr_pos[0] == 0:
+            return 0
+
         last_point, _ = self.locate_point(distance)
         target_direction = last_point[3:6]
         direction = utils.calculate_direction_vector(last_pos, curr_pos)
