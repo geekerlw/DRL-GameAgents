@@ -144,10 +144,10 @@ class RBRGame:
             })
 
     def step(self):
-        if time.time() % 2 == 0:
+        if self.drive_distance() - self.last_distance > 2:
             self.last_gear = self.car_gear()
-            self.last_distance = self.travel_distance()
             self.last_pos = self.car_pos()
+            self.last_distance = self.drive_distance()
         if len(self.pacenotes):
             if (self.drive_distance() + 10.0) > self.pacenotes[0]['distance']:
                 del self.pacenotes[0]

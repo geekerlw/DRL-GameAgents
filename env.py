@@ -108,7 +108,7 @@ class RBREnv(gym.Env):
     def reward(self):
         reward = 0
         reward -= 3 # step base reward, more step means more time and less reward.
-        if self.game.travel_distance() - self.game.last_distance < 0: # back way detected
+        if self.game.drive_distance() - self.game.last_distance < 0: # back way detected
             reward -= 2
         else:
             reward += 1
