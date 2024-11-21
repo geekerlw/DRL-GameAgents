@@ -83,7 +83,7 @@ class DriveLine:
     def outline(self, distance, pos):
         last_point, next_point = self.locate_point(distance)
         distance = utils.calculate_point_to_segment_distance(pos, last_point[:3], next_point[:3])
-        return distance > 3
+        return distance > 2.5
     
     def offset(self, distance, last_pos, curr_pos):
         if last_pos == curr_pos:
