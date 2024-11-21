@@ -81,12 +81,15 @@ class DriveLine:
         return self.points[0], self.points[-1]   
 
     def outline(self, distance, pos):
+        if distance < self.points[0][6] or distance > self.points[-1][6]:
+            return False
+
         last_point, next_point = self.locate_point(distance)
         distance = utils.calculate_point_to_segment_distance(pos, last_point[:3], next_point[:3])
         return distance > 2.5
     
     def offset(self, distance, last_pos, curr_pos):
-        if distance < 5: # driveline is recorded every 5 meters, make sure drive over first point.
+        if distance < self.points[0][6] or distance > self.points[-1][6]:
             return 0
 
         if last_pos == curr_pos or last_pos[0] == 0 or curr_pos[0] == 0:
