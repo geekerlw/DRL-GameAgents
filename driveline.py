@@ -95,7 +95,7 @@ class DriveLine:
         if last_pos == curr_pos or last_pos[0] == 0 or curr_pos[0] == 0: # invalid points
             return 0
     
-        if utils.calculate_two_points_distance(last_pos, curr_pos) < 2: # make sure calc at least 2 meters.
+        if utils.calculate_two_points_distance(last_pos, curr_pos) < 0.5: # make sure calc at least 0.5 meters.
             return 0
 
         last_point, _ = self.locate_point(distance)
