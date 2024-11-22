@@ -14,11 +14,12 @@ class RBREnv(gym.Env):
         self.total_rewards = 0
         self.game = RBRGame()
         self.driveline = DriveLine()
-        # self.observation = Numeric(self.game, self.driveline)
-        self.observation = Image()
+        self.numeric = Numeric(self.game, self.driveline)
+        self.image = Image()
         self.action = Action()
-        # self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.observation.dementions(),), dtype=np.float32)
-        self.observation_space = spaces.Box(low=0, high=255, shape=(self.observation.dementions(), self.observation.width, self.observation.height, 3), dtype=np.uint8)
+        numeric_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.numeric.dementions(),), dtype=np.float32)
+        image_space = spaces.Box(low=0, high=255, shape=(self.image.dementions(), self.image.width, self.image.height, 3), dtype=np.uint8)
+        self.observation_space = spaces.Tuple((numeric_space, image_space))
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action.dimentions(),), dtype=np.float32)
 
     def restart_game(self):
@@ -42,19 +43,20 @@ class RBREnv(gym.Env):
     def reset(self, seed=None):
         self.total_rewards = 0
         self.game.reset()
-        self.observation.reset()
+        self.numeric.reset()
+        self.image.reset()
         self.action.reset()
         self.restart_game()
-        return self.observation.take(), {}
+        return (self.numeric.take(), self.image.take()), {}
 
     def step(self, action):
         self.game.step()
         self.action.execute(action)
         time.sleep(0.2) # need some delay to wait game state update
-        reward = self.reward()
+        reward, done, truncated = self.evaluate()
         self.total_rewards += reward
         print(f"take action: {action}, got reward: {reward}, total: {self.total_rewards}")
-        return self.observation.take(), reward, self.done(), self.truncated(), {}
+        return (self.numeric.take(), self.image.take()), reward, done, truncated, {}
     
     def done(self):
         if self.shakedown:
@@ -83,26 +85,13 @@ class RBREnv(gym.Env):
         if self.total_rewards < -1e3 or self.total_rewards > 1e4:
             print(f"saddly, too many mistakes or infinate loop, rewards: {self.total_rewards}.")
             return True
-        
-        distance = np.linalg.norm(np.array(self.game.car_pos()) - np.array(self.game.last_pos))
-        if self.game.startcount() < -10.0 and distance < 1e-3:
-            print("saddly, car maybe stoped after game start ten seconds.")
-            return True
-        
-        outline = self.driveline.outline(self.game.drive_distance(), self.game.car_pos())
-        if outline:
-            print("saddly, car is out of the driveline.")
-            return True
-        
-        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
-        if angel > 30:
-            print(f"saddly, car is driving to a wrong direction {angel}.")
-            return True
 
         return False
     
-    def reward(self):
+    def evaluate(self):
         reward = 0
+        done = self.done()
+        truncated = self.truncated()
         reward -= 3 # step base reward, more step means more time and less reward.
         # if self.game.drive_distance() - self.game.last_distance < 0: # back way detected
         #     reward -= 2
@@ -130,10 +119,31 @@ class RBREnv(gym.Env):
         # else:
         #     reward += 1
 
-        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
-        if 15 < angel and angel < 30:
-            reward -= int(angel / 3)
-        elif 0 <= angel and angel <= 15:
-            reward += (5 - int(angel / 3))
+        distance = np.linalg.norm(np.array(self.game.car_pos()) - np.array(self.game.last_pos))
+        if self.game.startcount() < -10.0 and distance < 1e-3:
+            print("saddly, car maybe stoped after game start ten seconds.")
+            truncated |= True
+        else:
+            reward += int(distance)
 
-        return reward
+        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
+        if 10 < angel and angel < 20:
+            reward -= int(angel - 10)
+        elif 0 <= angel and angel <= 10:
+            reward += int(10 - (angel))
+        else:
+            print(f"saddly, car is driving to a wrong direction {angel}.")
+            truncated |= True
+
+        outline = self.driveline.outline(self.game.drive_distance(), self.game.car_pos())
+        if outline > 4:
+            print("saddly, car is out of the driveline.")
+            truncated |= True
+        else:
+            reward -= int(outline)
+
+        if done:
+            reward += 100
+        if truncated:
+            reward -= 100
+        return reward, done, truncated

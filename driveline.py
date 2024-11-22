@@ -82,11 +82,11 @@ class DriveLine:
 
     def outline(self, distance, pos):
         if distance < self.points[0][6] or distance > self.points[-1][6]: # make sure in driveline range.
-            return False
+            return 0
 
         last_point, next_point = self.locate_point(distance)
         distance = utils.calculate_point_to_segment_distance(pos, last_point[:3], next_point[:3])
-        return distance > 2.5
+        return distance
     
     def offset(self, distance, last_pos, curr_pos):
         if distance < self.points[0][6] or distance > self.points[-1][6]: # make sure in driveline range.

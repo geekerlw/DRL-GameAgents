@@ -4,6 +4,7 @@ import mss
 import numpy
 import cv2
 import time
+import utils
 
 class Numeric:
     def __init__(self, game: RBRGame, driveline: DriveLine):
@@ -14,7 +15,7 @@ class Numeric:
         pass
 
     def dementions(self):
-        return 13 + 8
+        return 13 + 9
 
     def take(self) -> list[float]:
         states = []
@@ -37,9 +38,11 @@ class Numeric:
     def racestate(self) -> list[float]:
         state = []
         state.extend(self.game.pacenote())
-        state.extend(self.game.car_pos())
         _, next = self.driveline.locate_point(self.game.drive_distance())
-        state.extend(next[:3])
+        car_pos = self.game.car_pos()
+        state.extend(utils.calculate_direction_vector(self.game.last_pos, car_pos))
+        state.extend(utils.calculate_direction_vector(car_pos(), next[:3]))
+        state.append(utils.calculate_two_points_distance(car_pos(), next[:3]))
         return state
     
 

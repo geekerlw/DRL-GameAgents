@@ -13,7 +13,7 @@ def train():
         if os.path.exists(os.path.join(MODEL_DIR, HALF_MODEL) + ".zip"):
             model = PPO.load(os.path.join(MODEL_DIR, HALF_MODEL), env=env)
         else:
-            model = PPO("MlpPolicy", env, verbose=1)
+            model = PPO("MultiInputPolicy", env, verbose=1)
         model.n_steps = 64
         model.batch_size = 16
         model.learn(total_timesteps=100_000)
