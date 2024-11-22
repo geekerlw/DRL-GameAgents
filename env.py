@@ -103,35 +103,37 @@ class RBREnv(gym.Env):
     
     def reward(self):
         reward = 0
-        reward -= 1 # step base reward, more step means more time and less reward.
-        if self.game.drive_distance() - self.game.last_distance < 0: # back way detected
-            reward -= 2
-        else:
-            reward += 1
+        reward -= 3 # step base reward, more step means more time and less reward.
+        # if self.game.drive_distance() - self.game.last_distance < 0: # back way detected
+        #     reward -= 2
+        # else:
+        #     reward += 1
 
-        if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000:
-            reward -= 2
-        else:
-            reward += 1
+        # if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000:
+        #     reward -= 2
+        # else:
+        #     reward += 1
 
-        if self.game.last_gear != self.game.car_gear():
-            reward -= 2
-        else:
-            reward += 1
+        # if self.game.last_gear != self.game.car_gear():
+        #     reward -= 2
+        # else:
+        #     reward += 1
 
-        if self.game.car_gear() < 2: # R/N gear is bad.
-            reward -= 2
-        else:
-            reward += 1
+        # if self.game.car_gear() < 2: # R/N gear is bad.
+        #     reward -= 2
+        # else:
+        #     reward += 1
 
-        speed = self.game.car_speed()
-        if speed < 0:
-            reward -= 2
-        else:
-            reward += 1
+        # speed = self.game.car_speed()
+        # if speed < 0:
+        #     reward -= 2
+        # else:
+        #     reward += 1
 
         angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
-        if angel < 30:
-            reward += int(angel / 5)
+        if 15 < angel and angel < 30:
+            reward -= int(angel / 3)
+        elif 0 <= angel and angel <= 15:
+            reward += (5 - int(angel / 3))
 
         return reward
