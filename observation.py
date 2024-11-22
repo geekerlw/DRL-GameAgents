@@ -41,8 +41,8 @@ class Numeric:
         _, next = self.driveline.locate_point(self.game.drive_distance())
         car_pos = self.game.car_pos()
         state.extend(utils.calculate_direction_vector(self.game.last_pos, car_pos))
-        state.extend(utils.calculate_direction_vector(car_pos(), next[:3]))
-        state.append(utils.calculate_two_points_distance(car_pos(), next[:3]))
+        state.extend(utils.calculate_direction_vector(car_pos, next[:3]))
+        state.append(utils.calculate_two_points_distance(car_pos, next[:3]))
         return state
     
 
