@@ -19,7 +19,10 @@ class RBREnv(gym.Env):
         self.action = Action()
         numeric_space = spaces.Box(low=-np.inf, high=np.inf, shape=(self.numeric.dementions(),), dtype=np.float32)
         image_space = spaces.Box(low=0, high=255, shape=(self.image.dementions(), self.image.width, self.image.height, 3), dtype=np.uint8)
-        self.observation_space = spaces.Tuple((numeric_space, image_space))
+        self.observation_space = spaces.Dict({
+            'numeric': numeric_space,
+            'image': image_space
+            })
         self.action_space = spaces.Box(low=-1, high=1, shape=(self.action.dimentions(),), dtype=np.float32)
 
     def restart_game(self):
@@ -47,7 +50,7 @@ class RBREnv(gym.Env):
         self.image.reset()
         self.action.reset()
         self.restart_game()
-        return (self.numeric.take(), self.image.take()), {}
+        return {'numeric': self.numeric.take(), 'image': self.image.take()}, {}
 
     def step(self, action):
         self.game.step()
@@ -56,7 +59,7 @@ class RBREnv(gym.Env):
         reward, done, truncated = self.evaluate()
         self.total_rewards += reward
         print(f"take action: {action}, got reward: {reward}, total: {self.total_rewards}")
-        return (self.numeric.take(), self.image.take()), reward, done, truncated, {}
+        return {'numeric': self.numeric.take(), 'image': self.image.take()}, reward, done, truncated, {}
     
     def done(self):
         if self.shakedown:
