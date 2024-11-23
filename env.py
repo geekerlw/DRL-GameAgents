@@ -95,32 +95,31 @@ class RBREnv(gym.Env):
         reward = 0
         done = self.done()
         truncated = self.truncated()
-        reward -= 3 # step base reward, more step means more time and less reward.
-        # if self.game.drive_distance() - self.game.last_distance < 0: # back way detected
-        #     reward -= 2
-        # else:
-        #     reward += 1
+        reward -= 1 # step base reward, more step means more time and less reward.
+        if self.game.drive_distance() - self.game.last_distance < 1: # back way detected
+            reward -= 2
+        else:
+            reward += 1
 
-        # if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000:
-        #     reward -= 2
-        # else:
-        #     reward += 1
+        if self.game.car_rpm() < 4000 or self.game.car_rpm() > 7000:
+            reward -= 2
+        else:
+            reward += 1
 
-        # if self.game.last_gear != self.game.car_gear():
-        #     reward -= 2
-        # else:
-        #     reward += 1
+        if self.game.last_gear != self.game.car_gear():
+            reward -= 2
+        else:
+            reward += 1
 
-        # if self.game.car_gear() < 2: # R/N gear is bad.
-        #     reward -= 2
-        # else:
-        #     reward += 1
-
-        # speed = self.game.car_speed()
-        # if speed < 0:
-        #     reward -= 2
-        # else:
-        #     reward += 1
+        gear = self.game.car_gear()
+        speed = self.game.car_speed()
+        if gear < 2: # R/N gear is bad.
+            reward -= 2
+        else:
+            if speed > 15 * gear:
+                reward += gear
+            else:
+                reward -= gear
 
         distance = np.linalg.norm(np.array(self.game.car_pos()) - np.array(self.game.last_pos))
         if self.game.startcount() < -10.0 and distance < 1e-3:
@@ -133,7 +132,10 @@ class RBREnv(gym.Env):
         if 10 < angel and angel < 20:
             reward -= int(angel - 10)
         elif 0 <= angel and angel <= 10:
-            reward += int(10 - (angel))
+            if speed > 20:
+                reward += int(10 - (angel))
+            else:
+                reward -= 1
         else:
             print(f"saddly, car is driving to a wrong direction {angel}.")
             truncated |= True
@@ -146,7 +148,7 @@ class RBREnv(gym.Env):
             reward -= int(outline)
 
         if done:
-            reward += 100
+            reward += int(self.game.travel_distance())
         if truncated:
             reward -= 100
         return reward, done, truncated
