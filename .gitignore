@@ -162,4 +162,5 @@ cython_debug/
 #.idea/
 
 model
+pretrained
 .DS_Store
