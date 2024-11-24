@@ -3,14 +3,20 @@ import vgamepad as vg
 import numpy as np
 
 class Action:
-    def __init__(self):
+    def __init__(self, continuous=True):
         self.gamepad = vg.VX360Gamepad()
-    
-    def dimentions(self):
-        return 4
+        self.continuous = continuous
+        self.actions = [self.none, self.steer_left, self.steer_center, self.steer_right, 
+                        self.throttle_full,self.brake_full, self.handbrake, self.reset]
 
-    # actions will inside [-1.0, 1.0], expand by yourself.
-    def execute(self, actions):
+    def dimentions(self):
+        if self.continuous:
+            return 3
+        else:
+            return len(self.actions)
+
+    def continuous_action(self, actions):
+        self.reset()
         self.steer(actions[0])
         self.throttle((actions[1] + 1.0) / 2)
 
@@ -18,11 +24,16 @@ class Action:
             self.handbrake()
         else:
             self.brake((actions[2] + 1.0) / 2)
-            
-        if actions[3] >= 0.5:
-            self.upgear()
-        elif actions[3] <= -0.5:
-            self.downgear()
+
+    def discrete_action(self, actions):
+        self.actions[actions]()
+
+    # actions will inside [-1.0, 1.0], expand by yourself.
+    def execute(self, actions):
+        if self.continuous:
+            self.continuous_action(actions)
+        else:
+            self.discrete_action(actions)
 
     def steer(self, weight): # weight is float between -1.0 and 1.0
         self.gamepad.left_joystick_float(x_value_float=weight, y_value_float=0)
@@ -77,3 +88,21 @@ class Action:
     def reset(self):
         self.gamepad.reset()
         self.gamepad.update()
+
+    def none(self):
+        pass
+
+    def steer_left(self):
+        self.steer(-1.0)
+
+    def steer_center(self):
+        self.steer(0)
+
+    def steer_right(self):
+        self.steer(1.0)
+
+    def throttle_full(self):
+        self.throttle(1.0)
+    
+    def brake_full(self):
+        self.brake(0.75)

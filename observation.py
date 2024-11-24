@@ -55,18 +55,11 @@ class Image:
 
     def reset(self):
         pass
-
-    def dementions(self):
-        return 4
     
     def take(self):
-        state = []
-        for i in range(self.dementions()):
-            img = self.sct.grab(self.monitor)
-            frame = numpy.array(img)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame = cv2.resize(frame, (self.width, self.height))
-            state.append(frame)
-            time.sleep(0.02)
-        return state
+        img = self.sct.grab(self.monitor)
+        frame = numpy.array(img)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = cv2.resize(frame, (self.width, self.height))
+        return frame
