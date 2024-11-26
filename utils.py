@@ -16,6 +16,24 @@ def calculate_direction_vector(point_a, point_b):
     unit_direction_vector = direction_vector / norm
     return unit_direction_vector
 
+def calculate_points_with_vertical_direction(P, D, d):
+    x, y, z = P
+    dx, dy, _ = D
+    
+    # 计算在 xy 平面上的垂直向量 N
+    N = np.array([-dy, dx])  # 垂直于 D 的二维向量
+    
+    # 计算左右目标点
+    # 直接使用 N，按比例缩放
+    L = np.array([x, y]) + N * (d / np.linalg.norm(N))  # 左点
+    R = np.array([x, y]) - N * (d / np.linalg.norm(N))  # 右点
+    
+    # 保持 z 坐标不变
+    L = np.array([L[0], L[1], z])
+    R = np.array([R[0], R[1], z])
+    
+    return L, R
+
 def calculate_angle_between_vectors(u, v):
     # 确保输入为 NumPy 数组
     u = np.array(u)

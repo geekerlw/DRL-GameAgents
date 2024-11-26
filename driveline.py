@@ -1,6 +1,5 @@
 import os
 import time
-from game import RBRGame
 import utils
 import matplotlib.pyplot as plt
 
@@ -8,9 +7,13 @@ class DriveLine:
     def __init__(self):
         self.pointnum = 0
         self.points = [] # [x, y, z, tx, ty, tz, distance, reserved]
+        self.left_points = [] # [x, y, z]
+        self.right_points = [] # [x, y, z]
 
     def reset(self):
         self.points.clear()
+        self.left_points.clear()
+        self.right_points.clear()
         self.pointnum = 0
 
     def load(self, stage):
@@ -27,6 +30,12 @@ class DriveLine:
                 elif line.startswith("K"):
                     self.points.append(list(map(float, line.split("=")[1].split(","))))
             print(f"file successfully load from: {filepath}")
+
+            for point in self.points:
+                distance = point[7] if point[7] != 0 else 3 # default 3 meters distance from center.
+                left, right = utils.calculate_points_with_vertical_direction(point[0:3], point[3:6], distance)
+                self.left_points.append(left)
+                self.right_points.append(right)
 
     def save(self, stage):
         filepath = os.path.join("rsfdata", f"{stage}-driveline.ini")
@@ -46,6 +55,14 @@ class DriveLine:
         x = [point[0] for point in self.points]
         y = [point[1] for point in self.points]
         plt.plot(x, y, marker='o', linestyle='-', color='b', label='Data Points')
+
+        lx = [point[0] for point in self.left_points]
+        ly = [point[1] for point in self.left_points]
+        plt.plot(lx, ly, marker='o', linestyle='--', color='b', label='Left edge')
+
+        rx = [point[0] for point in self.right_points]
+        ry = [point[1] for point in self.right_points]
+        plt.plot(rx, ry, marker='o', linestyle='--', color='b', label='Right edge')
 
         plt.title('2D Driveline')
         plt.xlabel('X Axis')
@@ -102,8 +119,10 @@ class DriveLine:
         target_direction = last_point[3:6]
         direction = utils.calculate_direction_vector(last_pos, curr_pos)
         return utils.calculate_angle_between_vectors(direction, target_direction)
-
+    
 def record_driveline():
+    from game import RBRGame
+
     game = RBRGame()
     driveline = DriveLine()
     while not game.attach():
