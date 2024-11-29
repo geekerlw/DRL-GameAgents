@@ -96,6 +96,17 @@ class DriveLine:
                 return self.points[i-1], self.points[i]
 
         return self.points[0], self.points[-1]   
+    
+    def nearby(self, distance):
+        left = []
+        right = []
+        points = []
+        for (i, point) in enumerate(self.points):
+            if (distance-5) < point[6] and point[6] < (distance+50):
+                left.append(self.left_boundary[i])
+                right.append(self.right_boundary[i])
+                points.append(self.points[i])
+        return left, right, points
 
     def outline(self, distance, pos):
         if distance < self.points[0][6] or distance > self.points[-1][6]: # make sure in driveline range.

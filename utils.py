@@ -11,7 +11,7 @@ def calculate_direction_vector(point_a, point_b):
     # 归一化方向向量
     norm = np.linalg.norm(direction_vector)
     if norm == 0:
-        return [0, 0, 0]
+        return np.zeros_like(direction_vector)
     
     unit_direction_vector = direction_vector / norm
     return unit_direction_vector
@@ -117,10 +117,11 @@ def calculate_transform_point(point, transform_matrix):
     return transformed_point[:2]  # 返回到二维坐标
 
 def calculate_transform_points(points, transform_matrix):
+    points = np.array(points)
     # 将点转换为齐次坐标
     points_homogeneous = np.hstack([points, np.ones((points.shape[0], 1))])
     
     # 应用变换
     transformed_points = np.dot(points_homogeneous, transform_matrix.T)
     
-    return transformed_points[:, :2]  # 返回到二维坐标
+    return transformed_points[:, :2].tolist()  # 返回到二维坐标
