@@ -17,22 +17,17 @@ def calculate_direction_vector(point_a, point_b):
     return unit_direction_vector
 
 def calculate_points_with_vertical_direction(P, D, d):
-    x, y, z = P
-    dx, dy, _ = D
+    dx, dy = D
     
     # 计算在 xy 平面上的垂直向量 N
     N = np.array([-dy, dx])  # 垂直于 D 的二维向量
     
     # 计算左右目标点
     # 直接使用 N，按比例缩放
-    L = np.array([x, y]) + N * (d / np.linalg.norm(N))  # 左点
-    R = np.array([x, y]) - N * (d / np.linalg.norm(N))  # 右点
-    
-    # 保持 z 坐标不变
-    L = np.array([L[0], L[1], z])
-    R = np.array([R[0], R[1], z])
-    
-    return L, R
+    L = np.array(P) + N * (d / np.linalg.norm(N))  # 左点
+    R = np.array(P) - N * (d / np.linalg.norm(N))  # 右点
+
+    return L.tolist(), R.tolist()
 
 def calculate_angle_between_vectors(u, v):
     # 确保输入为 NumPy 数组
@@ -90,3 +85,42 @@ def calculate_two_points_distance(point1, point2):
     
     distance = np.linalg.norm(point2 - point1)
     return distance
+
+def create_transform_matrix(rotation_angle, translation_vector):
+    # 创建旋转矩阵
+    theta = np.radians(rotation_angle)  # 将角度转换为弧度
+    rotation_matrix = np.array([
+        [np.cos(theta), -np.sin(theta), 0],
+        [np.sin(theta), np.cos(theta), 0],
+        [0, 0, 1]
+    ])
+    
+    # 创建平移矩阵
+    tx, ty = translation_vector
+    translation_matrix = np.array([
+        [1, 0, tx],
+        [0, 1, ty],
+        [0, 0, 1]
+    ])
+    
+    # 组合矩阵
+    transform_matrix = np.dot(translation_matrix, rotation_matrix)
+    return transform_matrix
+
+def calculate_transform_point(point, transform_matrix):
+    # 将点转换为齐次坐标
+    point_homogeneous = np.array([point[0], point[1], 1])  # 单个点的齐次坐标
+    
+    # 应用变换
+    transformed_point = np.dot(transform_matrix, point_homogeneous)
+    
+    return transformed_point[:2]  # 返回到二维坐标
+
+def calculate_transform_points(points, transform_matrix):
+    # 将点转换为齐次坐标
+    points_homogeneous = np.hstack([points, np.ones((points.shape[0], 1))])
+    
+    # 应用变换
+    transformed_points = np.dot(points_homogeneous, transform_matrix.T)
+    
+    return transformed_points[:, :2]  # 返回到二维坐标

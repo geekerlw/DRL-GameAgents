@@ -7,13 +7,13 @@ class DriveLine:
     def __init__(self):
         self.pointnum = 0
         self.points = [] # [x, y, z, tx, ty, tz, distance, reserved]
-        self.left_points = [] # [x, y, z]
-        self.right_points = [] # [x, y, z]
+        self.left_boundary = [] # [x, y]
+        self.right_boundary = [] # [x, y]
 
     def reset(self):
         self.points.clear()
-        self.left_points.clear()
-        self.right_points.clear()
+        self.left_boundary.clear()
+        self.right_boundary.clear()
         self.pointnum = 0
 
     def load(self, stage):
@@ -33,9 +33,9 @@ class DriveLine:
 
             for point in self.points:
                 distance = point[7] if point[7] != 0 else 3 # default 3 meters distance from center.
-                left, right = utils.calculate_points_with_vertical_direction(point[0:3], point[3:6], distance)
-                self.left_points.append(left)
-                self.right_points.append(right)
+                left, right = utils.calculate_points_with_vertical_direction(point[0:2], point[3:5], distance)
+                self.left_boundary.append(left)
+                self.right_boundary.append(right)
 
     def save(self, stage):
         filepath = os.path.join("rsfdata", f"{stage}-driveline.ini")
@@ -56,12 +56,12 @@ class DriveLine:
         y = [point[1] for point in self.points]
         plt.plot(x, y, marker='o', linestyle='-', color='b', label='Data Points')
 
-        lx = [point[0] for point in self.left_points]
-        ly = [point[1] for point in self.left_points]
+        lx = [point[0] for point in self.left_boundary]
+        ly = [point[1] for point in self.left_boundary]
         plt.plot(lx, ly, marker='o', linestyle='--', color='b', label='Left edge')
 
-        rx = [point[0] for point in self.right_points]
-        ry = [point[1] for point in self.right_points]
+        rx = [point[0] for point in self.right_boundary]
+        ry = [point[1] for point in self.right_boundary]
         plt.plot(rx, ry, marker='o', linestyle='--', color='b', label='Right edge')
 
         plt.title('2D Driveline')
