@@ -6,6 +6,7 @@ from observation import Numeric, Image
 from action import Action
 from game import RBRGame
 from driveline import DriveLine
+from track import TrackMonitor
 
 class RBREnv(gym.Env):
     def __init__(self, continous=True, shakedown=False, spacetype=1):
@@ -15,6 +16,7 @@ class RBREnv(gym.Env):
         self.total_rewards = 0
         self.game = RBRGame()
         self.driveline = DriveLine()
+        self.monitor = None
         self.numeric = Numeric(self.game, self.driveline)
         self.image = Image()
         self.action = Action(continous)
@@ -59,6 +61,10 @@ class RBREnv(gym.Env):
 
         self.driveline.load(self.game.stageid())
         self.game.load_pacenotes()
+
+        if self.monitor == None:
+            self.monitor = TrackMonitor(self.game, self.driveline)
+
         while not self.game.is_stage_started():
             time.sleep(0.2)
 
@@ -76,6 +82,10 @@ class RBREnv(gym.Env):
         self.action.execute(action)
         time.sleep(0.2) # need some delay to wait game state update
         reward, done, truncated = self.evaluate()
+        if done or truncated:
+            self.monitor.stop()
+            self.monitor.join()
+            self.monitor = None
         self.total_rewards += reward
         print(f"take action: {action}, got reward: {reward}, total: {self.total_rewards}")
         return self.observation(), reward, done, truncated, {}

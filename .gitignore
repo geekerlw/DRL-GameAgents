@@ -164,3 +164,4 @@ cython_debug/
 model
 pretrained
 .DS_Store
+temp.py

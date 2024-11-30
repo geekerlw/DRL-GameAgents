@@ -86,25 +86,54 @@ def calculate_two_points_distance(point1, point2):
     distance = np.linalg.norm(point2 - point1)
     return distance
 
-def create_transform_matrix(rotation_angle, translation_vector):
+def create_transform_matrix(pivot_point, rotation_angle, translation_vector, scale):
     # 创建旋转矩阵
     theta = np.radians(rotation_angle)  # 将角度转换为弧度
-    rotation_matrix = np.array([
+    R = np.array([
         [np.cos(theta), -np.sin(theta), 0],
         [np.sin(theta), np.cos(theta), 0],
         [0, 0, 1]
     ])
-    
-    # 创建平移矩阵
-    tx, ty = translation_vector
-    translation_matrix = np.array([
+
+    # 创建水平镜像矩阵（沿 Y 轴反转）
+    TFlip = np.array([
+        [-1, 0, 0],
+        [0, 1, 0],
+        [0, 0, 1]
+    ])
+
+    # 创建缩放矩阵
+    TS = np.array([
+        [scale, 0, 0],
+        [0, scale, 0],
+        [0, 0, 1]
+    ])
+
+    # 创建平移矩阵（平移到原点）
+    tx, ty = pivot_point
+    T1 = np.array([
+        [1, 0, -tx],
+        [0, 1, -ty],
+        [0, 0, 1]
+    ])
+
+    # 创建平移矩阵（平移到原位）
+    T2 = np.array([
         [1, 0, tx],
         [0, 1, ty],
         [0, 0, 1]
     ])
     
-    # 组合矩阵
-    transform_matrix = np.dot(translation_matrix, rotation_matrix)
+    # 创建平移矩阵(平移到目标位置)
+    tx, ty = translation_vector
+    T3 = np.array([
+        [1, 0, tx],
+        [0, 1, ty],
+        [0, 0, 1]
+    ])
+    
+    # 组合矩阵：平移到原点 -> 旋转 -> 水平镜像 -> 缩放 -> 平移回原位 -> 最终平移
+    transform_matrix = T3 @ T2 @ TS @ TFlip @ R @ T1
     return transform_matrix
 
 def calculate_transform_point(point, transform_matrix):
