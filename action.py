@@ -11,19 +11,17 @@ class Action:
 
     def dimentions(self):
         if self.continuous:
-            return 3
+            return 2
         else:
             return len(self.actions)
 
     def continuous_action(self, actions):
         self.reset()
         self.steer(actions[0])
-        self.throttle((actions[1] + 1.0) / 2)
-
-        if actions[2] <= -0.9:
-            self.handbrake()
+        if actions[1] >= 0:
+            self.throttle(actions[1])
         else:
-            self.brake((actions[2] + 1.0) / 2)
+            self.brake(-actions[1])
 
     def discrete_action(self, actions):
         self.actions[actions]()

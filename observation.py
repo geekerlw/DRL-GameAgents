@@ -50,8 +50,8 @@ class Image:
     def __init__(self):
         self.sct = mss.mss()
         self.monitor = {"top": 0, "left": 650, "width": 480, "height": 480}
-        self.width = 96
-        self.height = 96
+        self.width = 256
+        self.height = 256
 
     def reset(self):
         pass

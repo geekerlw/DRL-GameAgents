@@ -32,7 +32,7 @@ class DriveLine:
             print(f"file successfully load from: {filepath}")
 
             for point in self.points:
-                distance = point[7] if point[7] != 0 else 4 # default 4 meters distance from center.
+                distance = point[7] if point[7] != 0 else 3 # default 3 meters distance from center.
                 left, right = utils.calculate_points_with_vertical_direction(point[0:2], point[3:5], distance)
                 self.left_boundary.append(left)
                 self.right_boundary.append(right)

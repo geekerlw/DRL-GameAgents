@@ -11,6 +11,7 @@ from track import TrackMonitor
 class RBREnv(gym.Env):
     def __init__(self, continous=True, shakedown=False, spacetype=1):
         super(RBREnv, self).__init__()
+        self.timetick = time.time()
         self.spacetype = spacetype
         self.shakedown = shakedown
         self.total_rewards = 0
@@ -80,14 +81,17 @@ class RBREnv(gym.Env):
     def step(self, action):
         self.game.step()
         self.action.execute(action)
-        time.sleep(0.2) # need some delay to wait game state update
+        time.sleep(0.02) # need some delay to wait game state update
         reward, done, truncated = self.evaluate()
         if done or truncated:
             self.monitor.stop()
             self.monitor.join()
             self.monitor = None
         self.total_rewards += reward
-        print(f"take action: {action}, got reward: {reward}, total: {self.total_rewards}")
+        curtime = time.time()
+        if curtime - self.timetick > 2 or done or truncated:
+            print(f"take action: {action}, got reward: {reward}, total: {self.total_rewards}")
+            self.timetick = curtime
         return self.observation(), reward, done, truncated, {}
     
     def done(self):
@@ -119,49 +123,18 @@ class RBREnv(gym.Env):
         reward = 0
         done = self.done()
         truncated = self.truncated()
-        reward -= 2 # step base reward, more step means more time and less reward.
-        if self.game.drive_distance() - self.game.last_distance > 3: # back way detected
-            reward += 2
-  
-        if self.game.race_wrongway(): # wrong way.
-            reward -= 2
+        reward -= 0.1 # step base reward, more step means more time and less reward.
 
-        # if self.game.car_rpm() > 4000 or self.game.car_rpm() < 6500:
-        #     reward += 2
-
-        # if self.game.last_gear != self.game.car_gear():
-        #     reward -= 2
-
-        # gear = self.game.car_gear()
-        speed = self.game.car_speed()
-        # if gear < 2 or speed < 20 * gear: # R/N gear is bad.
-        #     reward -= 5
-
-        distance = np.linalg.norm(np.array(self.game.car_pos()) - np.array(self.game.last_pos))
-        if self.game.startcount() < -10.0 and distance < 1e-3:
-            print("saddly, car maybe stoped after game start ten seconds.")
-            truncated |= True
-        else:
-            reward += int(distance / 3)
-
-        angel = self.driveline.offset(self.game.drive_distance(), self.game.last_pos, self.game.car_pos())
-        if angel > 45:
-            print(f"saddly, car is driving to a wrong direction {angel}.")
-            truncated |= True
-        elif 24 <= angel and speed > 40:
-            reward += 1
-        elif angel < 24 and speed > 20:
-            reward += 8 - int(angel / 3)
+        if self.game.car_speed() < 0:
+            reward -= 1
 
         outline = self.driveline.outline(self.game.drive_distance(), self.game.car_pos())
         if outline > 5:
             print("saddly, car is out of the driveline.")
             truncated |= True
-        elif speed > 20:
-            reward += 10 - int(outline) * 2
 
         if done:
-            reward += int(self.game.travel_distance() * 50)
+            reward += int(self.game.travel_distance())
         if truncated:
-            reward -= 1000
+            reward -= 100
         return reward, done, truncated
